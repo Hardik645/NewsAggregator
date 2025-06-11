@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\NewsAggregator.Persistence\NewsAggregator.DAL.csproj" />
+    <ProjectReference Include="..\NewsAggregator.DAL\NewsAggregator.DAL.csproj" />
   </ItemGroup>
 
 </Project>
