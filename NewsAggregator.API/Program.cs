@@ -3,7 +3,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using NewsAggregator.API.Services;
+using NewsAggregator.API.Services.Background;
+using NewsAggregator.API.Services.Clients;
 using NewsAggregator.DAL.Context;
+using NewsAggregator.DAL.Repository;
 using System.Text;
 
 internal class Program
@@ -33,6 +36,15 @@ internal class Program
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
         builder.Services.AddScoped<IAuthService, AuthService>();
+        
+        builder.Services.AddScoped<IArticleRepository, ArticleRepository>();
+        builder.Services.AddScoped<ISourceRepository, SourceRepository>();
+        builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+
+        builder.Services.AddHttpClient<INewsApiClient>();
+        
+        builder.Services.AddSingleton<NewsApiClientFactory>();
+        builder.Services.AddHostedService<NewsFetchBackgroundService>();
 
         builder.Services.AddAuthentication(options =>
         {

@@ -1,0 +1,13 @@
+using System.Collections.Generic;
+
+namespace NewsAggregator.DAL.Entities
+{
+    public class Category
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+
+        public ICollection<Article> Articles { get; set; } = new List<Article>();
+        public ICollection<NotificationPreference> NotificationPreferences { get; set; } = new List<NotificationPreference>();
+    }
+}   

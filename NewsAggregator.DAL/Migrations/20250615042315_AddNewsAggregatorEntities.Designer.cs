@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NewsAggregator.DAL.Context;
 
@@ -11,9 +12,11 @@ using NewsAggregator.DAL.Context;
 namespace NewsAggregator.DAL.Migrations
 {
     [DbContext(typeof(NewsAggregatorDbContext))]
-    partial class NewsAggregatorDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250615042315_AddNewsAggregatorEntities")]
+    partial class AddNewsAggregatorEntities
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -278,10 +281,6 @@ namespace NewsAggregator.DAL.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("ApiKey")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ApiUrl")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
