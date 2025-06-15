@@ -9,8 +9,8 @@ namespace NewsAggregator.API.Services.Clients
             var scopedProvider = serviceProvider.CreateScope().ServiceProvider;
             return source.Name switch
             {
-                "NewsApiOrg" => ActivatorUtilities.CreateInstance<NewsApiOrgClient>(scopedProvider, httpClient, source.ApiUrl, source.ApiKey),
-                "TheNewsApi" => ActivatorUtilities.CreateInstance<TheNewsApiClient>(scopedProvider, httpClient, source.ApiUrl, source.ApiKey),
+                "NewsApiOrg" => ActivatorUtilities.CreateInstance<NewsApiOrgClient>(scopedProvider, httpClient, source),
+                "TheNewsApi" => ActivatorUtilities.CreateInstance<TheNewsApiClient>(scopedProvider, httpClient, source),
                 _ => throw new ArgumentException("Unknown news source")
             };
         }

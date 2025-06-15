@@ -5,11 +5,11 @@ using System.Text.Json;
 
 namespace NewsAggregator.API.Services.Clients
 {
-    public class NewsApiOrgClient(HttpClient httpClient, string apiUrl, string apiKey, ICategoryRepository categoryRepository, ISourceRepository sourceRepository) : INewsApiClient
+    public class NewsApiOrgClient(HttpClient httpClient,Source source, ICategoryRepository categoryRepository) : INewsApiClient
     {
         async Task<List<Article>> INewsApiClient.FetchArticlesAsync()
         {
-            var url = $"{apiUrl}&apiKey={apiKey}";
+            var url = $"{source.ApiUrl}&apiKey={source.ApiKey}";
             var request = new HttpRequestMessage(HttpMethod.Get, url);
             request.Headers.Add("User-Agent", "Mozilla/5.0 (compatible; NewsAggregator/1.0)");
             var response = await httpClient.SendAsync(request);
@@ -22,8 +22,7 @@ namespace NewsAggregator.API.Services.Clients
 
             if (result != null && result.Articles != null && result.Status == "ok" && result.TotalResults > 0)
             {
-                var category = await categoryRepository.GetByIdAsync(5);
-                var source = await sourceRepository.GetByNameAsync("NewsApiOrg");
+                var category = await categoryRepository.GetByIdAsync(1);
 
                 var mappedArticles = result.Articles.Select(a => new Article
                 {
@@ -32,9 +31,8 @@ namespace NewsAggregator.API.Services.Clients
                     Content = a.Content ?? a.Description ?? "",
                     PublishedAt = DateTime.TryParse(a.PublishedAt.ToString(), out var dt) ? dt : DateTime.UtcNow,
                     SourceId = source.Id,
-                    //Source = source,
-                    CategoryId = category.Id
-                    //Category = category
+                    CategoryId = category.Id,
+                    Category = category
                 });
                 return [.. mappedArticles];
             }

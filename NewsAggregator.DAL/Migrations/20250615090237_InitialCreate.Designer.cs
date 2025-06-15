@@ -12,8 +12,8 @@ using NewsAggregator.DAL.Context;
 namespace NewsAggregator.DAL.Migrations
 {
     [DbContext(typeof(NewsAggregatorDbContext))]
-    [Migration("20250615042315_AddNewsAggregatorEntities")]
-    partial class AddNewsAggregatorEntities
+    [Migration("20250615090237_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -281,6 +281,10 @@ namespace NewsAggregator.DAL.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("ApiKey")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ApiUrl")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
