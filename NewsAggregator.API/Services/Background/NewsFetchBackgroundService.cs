@@ -29,6 +29,7 @@ namespace NewsAggregator.API.Services.Background
                                 var client = clientFactory.GetClient(source);
                                 var articles = await client.FetchArticlesAsync();
                                 await articleRepository.SaveArticlesAsync(articles);
+                                await articleRepository.CategorizeUnknownArticlesByKeywordsAsync();
                                 logger.LogInformation("Fetched and stored articles for source: {Name}", source.Name);
                             }
                             catch (Exception ex)

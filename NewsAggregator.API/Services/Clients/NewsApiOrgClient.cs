@@ -32,7 +32,7 @@ namespace NewsAggregator.API.Services.Clients
                     PublishedAt = DateTime.TryParse(a.PublishedAt.ToString(), out var dt) ? dt : DateTime.UtcNow,
                     SourceId = source.Id,
                     CategoryId = category.Id,
-                    Category = category
+                    //Category = category
                 });
                 return [.. mappedArticles];
             }

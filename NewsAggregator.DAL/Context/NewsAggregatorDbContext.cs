@@ -14,6 +14,7 @@ namespace NewsAggregator.DAL.Context
         public DbSet<NotificationKeyword> NotificationKeywords { get; set; }
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<ArticleFeedback> ArticleFeedbacks { get; set; }
+        public DbSet<CategoryKeyword> CategoryKeywords { get; set; }
 
         public NewsAggregatorDbContext(DbContextOptions<NewsAggregatorDbContext> options)
             : base(options) { }
@@ -38,12 +39,12 @@ namespace NewsAggregator.DAL.Context
                 entity.Property(a => a.Content).IsRequired();
                 entity.Property(a => a.PublishedAt).IsRequired();
                 entity.HasOne(a => a.Source)
-                      .WithMany()
+                      .WithMany(s => s.Articles)
                       .HasForeignKey(a => a.SourceId)
                       .OnDelete(DeleteBehavior.Cascade);
-                entity.HasOne<Category>()
+                entity.HasOne(a => a.Category)
                       .WithMany(c => c.Articles)
-                      .HasForeignKey("CategoryId")
+                      .HasForeignKey(a => a.CategoryId)
                       .OnDelete(DeleteBehavior.Restrict);
             });
 
@@ -52,6 +53,7 @@ namespace NewsAggregator.DAL.Context
                 entity.HasKey(s => s.Id);
                 entity.Property(s => s.Name).IsRequired();
                 entity.Property(s => s.ApiKey).IsRequired();
+                entity.Property(s => s.ApiUrl).IsRequired();
             });
 
             modelBuilder.Entity<Category>(entity =>
@@ -65,11 +67,11 @@ namespace NewsAggregator.DAL.Context
             {
                 entity.HasKey(sa => sa.Id);
                 entity.HasOne(sa => sa.User)
-                      .WithMany()
+                      .WithMany(u => u.SavedArticles)
                       .HasForeignKey(sa => sa.UserId)
                       .OnDelete(DeleteBehavior.Cascade);
                 entity.HasOne(sa => sa.Article)
-                      .WithMany()
+                      .WithMany(a => a.SavedArticles)
                       .HasForeignKey(sa => sa.ArticleId)
                       .OnDelete(DeleteBehavior.Cascade);
                 entity.Property(sa => sa.SavedAt).IsRequired();
@@ -79,11 +81,11 @@ namespace NewsAggregator.DAL.Context
             {
                 entity.HasKey(np => np.Id);
                 entity.HasOne(np => np.User)
-                      .WithMany()
+                      .WithMany(u => u.NotificationPreferences)
                       .HasForeignKey(np => np.UserId)
                       .OnDelete(DeleteBehavior.Cascade);
                 entity.HasOne(np => np.Category)
-                      .WithMany()
+                      .WithMany(c => c.NotificationPreferences)
                       .HasForeignKey(np => np.CategoryId)
                       .OnDelete(DeleteBehavior.Cascade);
                 entity.Property(np => np.Enabled).IsRequired();
@@ -93,7 +95,7 @@ namespace NewsAggregator.DAL.Context
             {
                 entity.HasKey(nk => nk.Id);
                 entity.HasOne(nk => nk.User)
-                      .WithMany()
+                      .WithMany(u => u.NotificationKeywords)
                       .HasForeignKey(nk => nk.UserId)
                       .OnDelete(DeleteBehavior.Cascade);
                 entity.Property(nk => nk.Keyword).IsRequired();
@@ -103,11 +105,11 @@ namespace NewsAggregator.DAL.Context
             {
                 entity.HasKey(n => n.Id);
                 entity.HasOne(n => n.User)
-                      .WithMany()
+                      .WithMany(u => u.Notifications)
                       .HasForeignKey(n => n.UserId)
                       .OnDelete(DeleteBehavior.Cascade);
                 entity.HasOne(n => n.Article)
-                      .WithMany()
+                      .WithMany(a => a.Notifications)
                       .HasForeignKey(n => n.ArticleId)
                       .OnDelete(DeleteBehavior.Cascade);
                 entity.Property(n => n.SentAt).IsRequired();
@@ -118,15 +120,24 @@ namespace NewsAggregator.DAL.Context
             {
                 entity.HasKey(af => af.Id);
                 entity.HasOne(af => af.User)
-                      .WithMany()
+                      .WithMany(u => u.ArticleFeedbacks)
                       .HasForeignKey(af => af.UserId)
                       .OnDelete(DeleteBehavior.Cascade);
                 entity.HasOne(af => af.Article)
-                      .WithMany()
+                      .WithMany(a => a.ArticleFeedbacks)
                       .HasForeignKey(af => af.ArticleId)
                       .OnDelete(DeleteBehavior.Cascade);
                 entity.Property(af => af.IsLike).IsRequired();
                 entity.Property(af => af.CreatedAt).IsRequired();
+            });
+            modelBuilder.Entity<CategoryKeyword>(entity =>
+            {
+                entity.HasKey(ck => ck.Id);
+                entity.Property(ck => ck.Keyword).IsRequired();
+                entity.HasOne(ck => ck.Category)
+                      .WithMany(c => c.CategoryKeywords)
+                      .HasForeignKey(ck => ck.CategoryId)
+                      .OnDelete(DeleteBehavior.Cascade);
             });
         }
     }

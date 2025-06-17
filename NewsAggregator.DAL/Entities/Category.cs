@@ -9,5 +9,6 @@ namespace NewsAggregator.DAL.Entities
 
         public ICollection<Article> Articles { get; set; } = new List<Article>();
         public ICollection<NotificationPreference> NotificationPreferences { get; set; } = new List<NotificationPreference>();
+        public ICollection<CategoryKeyword> CategoryKeywords { get; set; } = new List<CategoryKeyword>();
     }
 }   

@@ -12,7 +12,7 @@ using NewsAggregator.DAL.Context;
 namespace NewsAggregator.DAL.Migrations
 {
     [DbContext(typeof(NewsAggregatorDbContext))]
-    [Migration("20250615090237_InitialCreate")]
+    [Migration("20250617175010_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -36,9 +36,6 @@ namespace NewsAggregator.DAL.Migrations
                     b.Property<int>("CategoryId")
                         .HasColumnType("int");
 
-                    b.Property<int>("CategoryId1")
-                        .HasColumnType("int");
-
                     b.Property<string>("Content")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -47,9 +44,6 @@ namespace NewsAggregator.DAL.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<int>("SourceId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("SourceId1")
                         .HasColumnType("int");
 
                     b.Property<string>("Title")
@@ -64,11 +58,7 @@ namespace NewsAggregator.DAL.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.HasIndex("CategoryId1");
-
                     b.HasIndex("SourceId");
-
-                    b.HasIndex("SourceId1");
 
                     b.ToTable("Articles");
                 });
@@ -84,9 +74,6 @@ namespace NewsAggregator.DAL.Migrations
                     b.Property<int>("ArticleId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("ArticleId1")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -96,18 +83,11 @@ namespace NewsAggregator.DAL.Migrations
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("UserId1")
-                        .HasColumnType("uniqueidentifier");
-
                     b.HasKey("Id");
 
                     b.HasIndex("ArticleId");
 
-                    b.HasIndex("ArticleId1");
-
                     b.HasIndex("UserId");
-
-                    b.HasIndex("UserId1");
 
                     b.ToTable("ArticleFeedbacks");
                 });
@@ -144,9 +124,6 @@ namespace NewsAggregator.DAL.Migrations
                     b.Property<int>("ArticleId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("ArticleId1")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("SentAt")
                         .HasColumnType("datetime2");
 
@@ -157,18 +134,11 @@ namespace NewsAggregator.DAL.Migrations
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("UserId1")
-                        .HasColumnType("uniqueidentifier");
-
                     b.HasKey("Id");
 
                     b.HasIndex("ArticleId");
 
-                    b.HasIndex("ArticleId1");
-
                     b.HasIndex("UserId");
-
-                    b.HasIndex("UserId1");
 
                     b.ToTable("Notifications");
                 });
@@ -188,14 +158,9 @@ namespace NewsAggregator.DAL.Migrations
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("UserId1")
-                        .HasColumnType("uniqueidentifier");
-
                     b.HasKey("Id");
 
                     b.HasIndex("UserId");
-
-                    b.HasIndex("UserId1");
 
                     b.ToTable("NotificationKeywords");
                 });
@@ -211,27 +176,17 @@ namespace NewsAggregator.DAL.Migrations
                     b.Property<int>("CategoryId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("CategoryId1")
-                        .HasColumnType("int");
-
                     b.Property<bool>("Enabled")
                         .HasColumnType("bit");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("UserId1")
-                        .HasColumnType("uniqueidentifier");
-
                     b.HasKey("Id");
 
                     b.HasIndex("CategoryId");
 
-                    b.HasIndex("CategoryId1");
-
                     b.HasIndex("UserId");
-
-                    b.HasIndex("UserId1");
 
                     b.ToTable("NotificationPreferences");
                 });
@@ -247,27 +202,17 @@ namespace NewsAggregator.DAL.Migrations
                     b.Property<int>("ArticleId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("ArticleId1")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("SavedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("UserId1")
-                        .HasColumnType("uniqueidentifier");
-
                     b.HasKey("Id");
 
                     b.HasIndex("ArticleId");
 
-                    b.HasIndex("ArticleId1");
-
                     b.HasIndex("UserId");
-
-                    b.HasIndex("UserId1");
 
                     b.ToTable("SavedArticles");
                 });
@@ -329,27 +274,17 @@ namespace NewsAggregator.DAL.Migrations
 
             modelBuilder.Entity("NewsAggregator.DAL.Entities.Article", b =>
                 {
-                    b.HasOne("NewsAggregator.DAL.Entities.Category", null)
+                    b.HasOne("NewsAggregator.DAL.Entities.Category", "Category")
                         .WithMany("Articles")
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("NewsAggregator.DAL.Entities.Category", "Category")
-                        .WithMany()
-                        .HasForeignKey("CategoryId1")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("NewsAggregator.DAL.Entities.Source", "Source")
-                        .WithMany()
+                        .WithMany("Articles")
                         .HasForeignKey("SourceId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("NewsAggregator.DAL.Entities.Source", null)
-                        .WithMany("Articles")
-                        .HasForeignKey("SourceId1");
 
                     b.Navigation("Category");
 
@@ -359,24 +294,16 @@ namespace NewsAggregator.DAL.Migrations
             modelBuilder.Entity("NewsAggregator.DAL.Entities.ArticleFeedback", b =>
                 {
                     b.HasOne("NewsAggregator.DAL.Entities.Article", "Article")
-                        .WithMany()
+                        .WithMany("ArticleFeedbacks")
                         .HasForeignKey("ArticleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("NewsAggregator.DAL.Entities.Article", null)
-                        .WithMany("ArticleFeedbacks")
-                        .HasForeignKey("ArticleId1");
-
                     b.HasOne("NewsAggregator.DAL.Entities.User", "User")
-                        .WithMany()
+                        .WithMany("ArticleFeedbacks")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("NewsAggregator.DAL.Entities.User", null)
-                        .WithMany("ArticleFeedbacks")
-                        .HasForeignKey("UserId1");
 
                     b.Navigation("Article");
 
@@ -386,24 +313,16 @@ namespace NewsAggregator.DAL.Migrations
             modelBuilder.Entity("NewsAggregator.DAL.Entities.Notification", b =>
                 {
                     b.HasOne("NewsAggregator.DAL.Entities.Article", "Article")
-                        .WithMany()
+                        .WithMany("Notifications")
                         .HasForeignKey("ArticleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("NewsAggregator.DAL.Entities.Article", null)
-                        .WithMany("Notifications")
-                        .HasForeignKey("ArticleId1");
-
                     b.HasOne("NewsAggregator.DAL.Entities.User", "User")
-                        .WithMany()
+                        .WithMany("Notifications")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("NewsAggregator.DAL.Entities.User", null)
-                        .WithMany("Notifications")
-                        .HasForeignKey("UserId1");
 
                     b.Navigation("Article");
 
@@ -413,14 +332,10 @@ namespace NewsAggregator.DAL.Migrations
             modelBuilder.Entity("NewsAggregator.DAL.Entities.NotificationKeyword", b =>
                 {
                     b.HasOne("NewsAggregator.DAL.Entities.User", "User")
-                        .WithMany()
+                        .WithMany("NotificationKeywords")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("NewsAggregator.DAL.Entities.User", null)
-                        .WithMany("NotificationKeywords")
-                        .HasForeignKey("UserId1");
 
                     b.Navigation("User");
                 });
@@ -428,24 +343,16 @@ namespace NewsAggregator.DAL.Migrations
             modelBuilder.Entity("NewsAggregator.DAL.Entities.NotificationPreference", b =>
                 {
                     b.HasOne("NewsAggregator.DAL.Entities.Category", "Category")
-                        .WithMany()
+                        .WithMany("NotificationPreferences")
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("NewsAggregator.DAL.Entities.Category", null)
-                        .WithMany("NotificationPreferences")
-                        .HasForeignKey("CategoryId1");
-
                     b.HasOne("NewsAggregator.DAL.Entities.User", "User")
-                        .WithMany()
+                        .WithMany("NotificationPreferences")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("NewsAggregator.DAL.Entities.User", null)
-                        .WithMany("NotificationPreferences")
-                        .HasForeignKey("UserId1");
 
                     b.Navigation("Category");
 
@@ -455,24 +362,16 @@ namespace NewsAggregator.DAL.Migrations
             modelBuilder.Entity("NewsAggregator.DAL.Entities.SavedArticle", b =>
                 {
                     b.HasOne("NewsAggregator.DAL.Entities.Article", "Article")
-                        .WithMany()
+                        .WithMany("SavedArticles")
                         .HasForeignKey("ArticleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("NewsAggregator.DAL.Entities.Article", null)
-                        .WithMany("SavedArticles")
-                        .HasForeignKey("ArticleId1");
-
                     b.HasOne("NewsAggregator.DAL.Entities.User", "User")
-                        .WithMany()
+                        .WithMany("SavedArticles")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("NewsAggregator.DAL.Entities.User", null)
-                        .WithMany("SavedArticles")
-                        .HasForeignKey("UserId1");
 
                     b.Navigation("Article");
 

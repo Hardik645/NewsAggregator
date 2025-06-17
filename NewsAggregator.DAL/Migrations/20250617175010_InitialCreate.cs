@@ -65,9 +65,7 @@ namespace NewsAggregator.DAL.Migrations
                     Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     PublishedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     SourceId = table.Column<int>(type: "int", nullable: false),
-                    CategoryId = table.Column<int>(type: "int", nullable: false),
-                    CategoryId1 = table.Column<int>(type: "int", nullable: false),
-                    SourceId1 = table.Column<int>(type: "int", nullable: true)
+                    CategoryId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -79,22 +77,11 @@ namespace NewsAggregator.DAL.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Articles_Categories_CategoryId1",
-                        column: x => x.CategoryId1,
-                        principalTable: "Categories",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
                         name: "FK_Articles_Sources_SourceId",
                         column: x => x.SourceId,
                         principalTable: "Sources",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Articles_Sources_SourceId1",
-                        column: x => x.SourceId1,
-                        principalTable: "Sources",
-                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -104,8 +91,7 @@ namespace NewsAggregator.DAL.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Keyword = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    UserId1 = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    Keyword = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -116,11 +102,6 @@ namespace NewsAggregator.DAL.Migrations
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_NotificationKeywords_Users_UserId1",
-                        column: x => x.UserId1,
-                        principalTable: "Users",
-                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -131,9 +112,7 @@ namespace NewsAggregator.DAL.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CategoryId = table.Column<int>(type: "int", nullable: false),
-                    Enabled = table.Column<bool>(type: "bit", nullable: false),
-                    CategoryId1 = table.Column<int>(type: "int", nullable: true),
-                    UserId1 = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    Enabled = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -145,21 +124,11 @@ namespace NewsAggregator.DAL.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_NotificationPreferences_Categories_CategoryId1",
-                        column: x => x.CategoryId1,
-                        principalTable: "Categories",
-                        principalColumn: "Id");
-                    table.ForeignKey(
                         name: "FK_NotificationPreferences_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_NotificationPreferences_Users_UserId1",
-                        column: x => x.UserId1,
-                        principalTable: "Users",
-                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -171,9 +140,7 @@ namespace NewsAggregator.DAL.Migrations
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ArticleId = table.Column<int>(type: "int", nullable: false),
                     IsLike = table.Column<bool>(type: "bit", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ArticleId1 = table.Column<int>(type: "int", nullable: true),
-                    UserId1 = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -185,21 +152,11 @@ namespace NewsAggregator.DAL.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_ArticleFeedbacks_Articles_ArticleId1",
-                        column: x => x.ArticleId1,
-                        principalTable: "Articles",
-                        principalColumn: "Id");
-                    table.ForeignKey(
                         name: "FK_ArticleFeedbacks_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_ArticleFeedbacks_Users_UserId1",
-                        column: x => x.UserId1,
-                        principalTable: "Users",
-                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -211,9 +168,7 @@ namespace NewsAggregator.DAL.Migrations
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ArticleId = table.Column<int>(type: "int", nullable: false),
                     SentAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Type = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ArticleId1 = table.Column<int>(type: "int", nullable: true),
-                    UserId1 = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    Type = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -225,21 +180,11 @@ namespace NewsAggregator.DAL.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Notifications_Articles_ArticleId1",
-                        column: x => x.ArticleId1,
-                        principalTable: "Articles",
-                        principalColumn: "Id");
-                    table.ForeignKey(
                         name: "FK_Notifications_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Notifications_Users_UserId1",
-                        column: x => x.UserId1,
-                        principalTable: "Users",
-                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -250,9 +195,7 @@ namespace NewsAggregator.DAL.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ArticleId = table.Column<int>(type: "int", nullable: false),
-                    SavedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ArticleId1 = table.Column<int>(type: "int", nullable: true),
-                    UserId1 = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    SavedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -264,21 +207,11 @@ namespace NewsAggregator.DAL.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_SavedArticles_Articles_ArticleId1",
-                        column: x => x.ArticleId1,
-                        principalTable: "Articles",
-                        principalColumn: "Id");
-                    table.ForeignKey(
                         name: "FK_SavedArticles_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_SavedArticles_Users_UserId1",
-                        column: x => x.UserId1,
-                        principalTable: "Users",
-                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateIndex(
@@ -287,19 +220,9 @@ namespace NewsAggregator.DAL.Migrations
                 column: "ArticleId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ArticleFeedbacks_ArticleId1",
-                table: "ArticleFeedbacks",
-                column: "ArticleId1");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_ArticleFeedbacks_UserId",
                 table: "ArticleFeedbacks",
                 column: "UserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ArticleFeedbacks_UserId1",
-                table: "ArticleFeedbacks",
-                column: "UserId1");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Articles_CategoryId",
@@ -307,19 +230,9 @@ namespace NewsAggregator.DAL.Migrations
                 column: "CategoryId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Articles_CategoryId1",
-                table: "Articles",
-                column: "CategoryId1");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Articles_SourceId",
                 table: "Articles",
                 column: "SourceId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Articles_SourceId1",
-                table: "Articles",
-                column: "SourceId1");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Categories_Name",
@@ -333,19 +246,9 @@ namespace NewsAggregator.DAL.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_NotificationKeywords_UserId1",
-                table: "NotificationKeywords",
-                column: "UserId1");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_NotificationPreferences_CategoryId",
                 table: "NotificationPreferences",
                 column: "CategoryId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_NotificationPreferences_CategoryId1",
-                table: "NotificationPreferences",
-                column: "CategoryId1");
 
             migrationBuilder.CreateIndex(
                 name: "IX_NotificationPreferences_UserId",
@@ -353,19 +256,9 @@ namespace NewsAggregator.DAL.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_NotificationPreferences_UserId1",
-                table: "NotificationPreferences",
-                column: "UserId1");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Notifications_ArticleId",
                 table: "Notifications",
                 column: "ArticleId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Notifications_ArticleId1",
-                table: "Notifications",
-                column: "ArticleId1");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Notifications_UserId",
@@ -373,29 +266,14 @@ namespace NewsAggregator.DAL.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Notifications_UserId1",
-                table: "Notifications",
-                column: "UserId1");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_SavedArticles_ArticleId",
                 table: "SavedArticles",
                 column: "ArticleId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_SavedArticles_ArticleId1",
-                table: "SavedArticles",
-                column: "ArticleId1");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_SavedArticles_UserId",
                 table: "SavedArticles",
                 column: "UserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_SavedArticles_UserId1",
-                table: "SavedArticles",
-                column: "UserId1");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Users_Email",
