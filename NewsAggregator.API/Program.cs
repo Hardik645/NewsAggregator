@@ -5,6 +5,7 @@ using Microsoft.OpenApi.Models;
 using NewsAggregator.API.Services;
 using NewsAggregator.API.Services.Background;
 using NewsAggregator.API.Services.Clients;
+using NewsAggregator.API.Services.Common;
 using NewsAggregator.DAL.Context;
 using NewsAggregator.DAL.Repository;
 using System.Text;
@@ -40,6 +41,9 @@ internal class Program
         builder.Services.AddScoped<IArticleRepository, ArticleRepository>();
         builder.Services.AddScoped<ISourceRepository, SourceRepository>();
         builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+
+        builder.Services.AddScoped<INewsService, NewsService>();
+        builder.Services.AddScoped<IArticleService, ArticleService>();
 
         builder.Services.AddHttpClient<INewsApiClient>();
         

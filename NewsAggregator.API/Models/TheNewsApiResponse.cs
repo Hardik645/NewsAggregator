@@ -24,7 +24,7 @@ namespace NewsAggregator.API.Models
         public string Url { get; set; }
         public string ImageUrl { get; set; }
         public string Language { get; set; }
-        public DateTime PublishedAt { get; set; }
+        public DateTime Published_At { get; set; }
         public string Source { get; set; }
         public List<string> Categories { get; set; }
         public double? RelevanceScore { get; set; }

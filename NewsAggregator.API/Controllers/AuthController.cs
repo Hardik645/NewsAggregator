@@ -5,7 +5,7 @@ using NewsAggregator.API.Services;
 namespace NewsAggregator.API.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("auth")]
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
@@ -18,24 +18,40 @@ namespace NewsAggregator.API.Controllers
         [HttpPost("signup")]
         public async Task<IActionResult> Signup([FromBody] SignupRequest request)
         {
-            if (!ModelState.IsValid)
-                return BadRequest("Invalid input.");
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest("Invalid input.");
 
-            var (success, errorMessage) = await _authService.SignupAsync(request);
-            if (!success)
-                return Conflict(errorMessage);
+                var (success, errorMessage) = await _authService.SignupAsync(request);
+                if (!success)
+                    return Conflict(errorMessage);
 
-            return Ok("Signup successful.");
+                return Ok("Signup successful.");
+            }
+            catch (Exception ex)
+            {
+                // Optionally log ex
+                return StatusCode(500, "An unexpected error occurred: " + ex.Message);
+            }
         }
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
-            var (success, token, role, errorMessage) = await _authService.LoginAsync(request);
-            if (!success)
-                return Unauthorized(errorMessage);
+            try
+            {
+                var response = await _authService.LoginAsync(request);
+                if (!response.Success)
+                    return Unauthorized(response.ErrorMessage);
 
-            return Ok(new { Token = token, Role = role });
+                return Ok(new {response.UserId, response.Token, response.Role });
+            }
+            catch (Exception ex)
+            {
+                // Optionally log ex
+                return StatusCode(500, "An unexpected error occurred: " + ex.Message);
+            }
         }
     }
 }

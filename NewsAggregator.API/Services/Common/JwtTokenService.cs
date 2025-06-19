@@ -4,7 +4,7 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
 
-namespace NewsAggregator.API.Services
+namespace NewsAggregator.API.Services.Common
 {
     public class JwtTokenService
     {

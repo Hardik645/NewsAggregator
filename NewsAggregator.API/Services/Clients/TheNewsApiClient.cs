@@ -38,7 +38,7 @@ namespace NewsAggregator.API.Services.Clients
                         Title = a.Title,
                         Url = a.Url,
                         Content = a.Description ?? "",
-                        PublishedAt = DateTime.TryParse(a.PublishedAt.ToString(), out var dt) ? dt : DateTime.UtcNow,
+                        PublishedAt = DateTime.TryParse(a.Published_At.ToString(), out var dt) ? dt : DateTime.UtcNow,
                         SourceId = source.Id,
                         CategoryId = categoryId,
                     };

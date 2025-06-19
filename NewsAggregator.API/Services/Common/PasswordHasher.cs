@@ -1,6 +1,6 @@
 using BCrypt.Net;
 
-namespace NewsAggregator.API.Services
+namespace NewsAggregator.API.Services.Common
 {
     public static class PasswordHasher
     {
