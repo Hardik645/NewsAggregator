@@ -11,26 +11,18 @@ namespace NewsAggregator.API.Services
         Task<List<Article>> SearchNewsAsync(string query, DateTime? startDate, DateTime? endDate, string? sortBy);
     }
 
-    public class NewsService : INewsService
+    public class NewsService(IArticleRepository articleRepository) : INewsService
     {
-        private readonly IArticleRepository _articleRepository;
-
-        public NewsService(IArticleRepository articleRepository)
-        {
-            _articleRepository = articleRepository;
-        }
-
         public async Task<List<Article>> GetTodaysNewsAsync()
         {
             try
             {
                 var todayStartTime = DateTime.UtcNow.Date;
                 var todayEndTime = DateTime.UtcNow.Date.Add(TimeSpan.FromDays(1));
-                return await _articleRepository.GetArticlesByDateRangeAsync(todayStartTime, todayEndTime);
+                return await articleRepository.GetArticlesByDateRangeAsync(todayStartTime, todayEndTime);
             }
             catch (Exception ex)
             {
-                // Log or handle as needed
                 throw new ApplicationException("Failed to get today's news.", ex);
             }
         }
@@ -39,7 +31,7 @@ namespace NewsAggregator.API.Services
         {
             try
             {
-                return await _articleRepository.GetArticlesByDateRangeAsync(startDate.Date, endDate.Date);
+                return await articleRepository.GetArticlesByDateRangeAsync(startDate.Date, endDate.Date);
             }
             catch (Exception ex)
             {
@@ -52,7 +44,7 @@ namespace NewsAggregator.API.Services
             try
             {
                 var today = DateTime.UtcNow.Date;
-                return await _articleRepository.GetArticlesByCategoryAndDateAsync(category, today);
+                return await articleRepository.GetArticlesByCategoryAndDateAsync(category, today);
             }
             catch (Exception ex)
             {
@@ -64,7 +56,7 @@ namespace NewsAggregator.API.Services
         {
             try
             {
-                return await _articleRepository.SearchArticlesAsync(query, startDate, endDate, sortBy);
+                return await articleRepository.SearchArticlesAsync(query, startDate, endDate, sortBy);
             }
             catch (Exception ex)
             {

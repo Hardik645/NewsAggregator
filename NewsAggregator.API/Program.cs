@@ -27,6 +27,30 @@ internal class Program
                 Title = "News Aggregator API",
                 Version = "v1"
             });
+
+            options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+            {
+                In = ParameterLocation.Header,
+                Description = "JWT Authorization header using the Bearer scheme.",
+                Name = "Authorization",
+                Type = SecuritySchemeType.Http,
+                Scheme = "Bearer"
+            });
+
+            options.AddSecurityRequirement(new OpenApiSecurityRequirement
+            {
+                {
+                    new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                        }
+                    },
+                    new string[] {}
+                }
+            });
         });
 
         var jwtSecret = builder.Configuration["Jwt:Secret"];
@@ -41,9 +65,11 @@ internal class Program
         builder.Services.AddScoped<IArticleRepository, ArticleRepository>();
         builder.Services.AddScoped<ISourceRepository, SourceRepository>();
         builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+        builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 
         builder.Services.AddScoped<INewsService, NewsService>();
         builder.Services.AddScoped<IArticleService, ArticleService>();
+        builder.Services.AddScoped<INotificationService, NotificationService>();
 
         builder.Services.AddHttpClient<INewsApiClient>();
         

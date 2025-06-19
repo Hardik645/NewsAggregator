@@ -14,6 +14,7 @@ namespace NewsAggregator.DAL.Repository
         Task<bool> SaveArticleForUserAsync(int articleId, Guid userId);
         Task<bool> DeleteSavedArticleForUserAsync(int articleId, Guid userId);
         Task<List<Article>> GetSavedArticlesForUserAsync(Guid userId);
+        Task<bool> SetArticleFeedbackAsync(int articleId, Guid userId, bool isLike);
     }
 
     public class ArticleRepository : IArticleRepository
@@ -170,6 +171,50 @@ namespace NewsAggregator.DAL.Repository
                 .Select(sa => sa.Article)
                 .AsNoTracking()
                 .ToListAsync();
+        }
+
+        public async Task<bool> SetArticleFeedbackAsync(int articleId, Guid userId, bool isLike)
+        {
+            var article = await _context.Articles.FirstOrDefaultAsync(a => a.Id == articleId);
+            if (article == null) return false;
+
+            var feedback = await _context.ArticleFeedbacks
+                .FirstOrDefaultAsync(f => f.ArticleId == articleId && f.UserId == userId);
+
+            if (feedback != null)
+            {
+                if (feedback.IsLike == isLike) return true;
+
+                if (isLike)
+                {
+                    feedback.IsLike = true;
+                    article.Likes++;
+                    article.Dislikes = Math.Max(0, article.Dislikes - 1);
+                }
+                else
+                {
+                    feedback.IsLike = false;
+                    article.Dislikes++;
+                    article.Likes = Math.Max(0, article.Likes - 1);
+                }
+            }
+            else
+            {
+                _context.ArticleFeedbacks.Add(new ArticleFeedback
+                {
+                    ArticleId = articleId,
+                    UserId = userId,
+                    IsLike = isLike,
+                    CreatedAt = DateTime.UtcNow
+                });
+                if (isLike)
+                    article.Likes++;
+                else
+                    article.Dislikes++;
+            }
+
+            await _context.SaveChangesAsync();
+            return true;
         }
     }
 }

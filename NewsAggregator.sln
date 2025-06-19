@@ -5,8 +5,6 @@ VisualStudioVersion = 17.14.36202.13
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NewsAggregator.API", "NewsAggregator.API\NewsAggregator.API.csproj", "{36CF1388-9751-409D-BFFA-64CE92FDA71B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NewsAggregator.BackgroundJobs", "NewsAggregator.BackgroundJobs\NewsAggregator.BackgroundJobs.csproj", "{F59BD5DF-321C-4186-B19A-3E61ACD6EB0F}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NewsAggregator.Tests", "NewsAggregator.Tests\NewsAggregator.Tests.csproj", "{A1B4BBBB-E9F6-4793-8BD1-46FCEFC24B99}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NewsAggregator.DAL", "NewsAggregator.DAL\NewsAggregator.DAL.csproj", "{58FEBB6A-FF45-11AF-74D3-929EF72D63F4}"
@@ -33,18 +31,6 @@ Global
 		{36CF1388-9751-409D-BFFA-64CE92FDA71B}.Release|x64.Build.0 = Release|Any CPU
 		{36CF1388-9751-409D-BFFA-64CE92FDA71B}.Release|x86.ActiveCfg = Release|Any CPU
 		{36CF1388-9751-409D-BFFA-64CE92FDA71B}.Release|x86.Build.0 = Release|Any CPU
-		{F59BD5DF-321C-4186-B19A-3E61ACD6EB0F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F59BD5DF-321C-4186-B19A-3E61ACD6EB0F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F59BD5DF-321C-4186-B19A-3E61ACD6EB0F}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{F59BD5DF-321C-4186-B19A-3E61ACD6EB0F}.Debug|x64.Build.0 = Debug|Any CPU
-		{F59BD5DF-321C-4186-B19A-3E61ACD6EB0F}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{F59BD5DF-321C-4186-B19A-3E61ACD6EB0F}.Debug|x86.Build.0 = Debug|Any CPU
-		{F59BD5DF-321C-4186-B19A-3E61ACD6EB0F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F59BD5DF-321C-4186-B19A-3E61ACD6EB0F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F59BD5DF-321C-4186-B19A-3E61ACD6EB0F}.Release|x64.ActiveCfg = Release|Any CPU
-		{F59BD5DF-321C-4186-B19A-3E61ACD6EB0F}.Release|x64.Build.0 = Release|Any CPU
-		{F59BD5DF-321C-4186-B19A-3E61ACD6EB0F}.Release|x86.ActiveCfg = Release|Any CPU
-		{F59BD5DF-321C-4186-B19A-3E61ACD6EB0F}.Release|x86.Build.0 = Release|Any CPU
 		{A1B4BBBB-E9F6-4793-8BD1-46FCEFC24B99}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A1B4BBBB-E9F6-4793-8BD1-46FCEFC24B99}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A1B4BBBB-E9F6-4793-8BD1-46FCEFC24B99}.Debug|x64.ActiveCfg = Debug|Any CPU

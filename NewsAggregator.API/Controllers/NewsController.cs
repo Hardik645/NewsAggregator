@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NewsAggregator.API.Services;
 
@@ -5,21 +6,15 @@ namespace NewsAggregator.API.Controllers
 {
     [ApiController]
     [Route("api/news")]
-    public class NewsController : ControllerBase
+    [Authorize]
+    public class NewsController(INewsService newsService) : ControllerBase
     {
-        private readonly INewsService _newsService;
-
-        public NewsController(INewsService newsService)
-        {
-            _newsService = newsService;
-        }
-
         [HttpGet("today")]
         public async Task<IActionResult> GetTodaysNews()
         {
             try
             {
-                var articles = await _newsService.GetTodaysNewsAsync();
+                var articles = await newsService.GetTodaysNewsAsync();
                 return Ok(articles);
             }
             catch (Exception ex)
@@ -33,7 +28,7 @@ namespace NewsAggregator.API.Controllers
         {
             try
             {
-                var articles = await _newsService.GetNewsByDateRangeAsync(startDate, endDate);
+                var articles = await newsService.GetNewsByDateRangeAsync(startDate, endDate);
                 return Ok(articles);
             }
             catch (Exception ex)
@@ -47,7 +42,7 @@ namespace NewsAggregator.API.Controllers
         {
             try
             {
-                var articles = await _newsService.GetTodaysNewsByCategoryAsync(category);
+                var articles = await newsService.GetTodaysNewsByCategoryAsync(category);
                 return Ok(articles);
             }
             catch (Exception ex)
@@ -65,7 +60,7 @@ namespace NewsAggregator.API.Controllers
         {
             try
             {
-                var articles = await _newsService.SearchNewsAsync(query, startDate, endDate, sortBy);
+                var articles = await newsService.SearchNewsAsync(query, startDate, endDate, sortBy);
                 return Ok(articles);
             }
             catch (Exception ex)

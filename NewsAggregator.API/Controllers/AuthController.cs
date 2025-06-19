@@ -6,15 +6,8 @@ namespace NewsAggregator.API.Controllers
 {
     [ApiController]
     [Route("auth")]
-    public class AuthController : ControllerBase
+    public class AuthController(IAuthService authService) : ControllerBase
     {
-        private readonly IAuthService _authService;
-
-        public AuthController(IAuthService authService)
-        {
-            _authService = authService;
-        }
-
         [HttpPost("signup")]
         public async Task<IActionResult> Signup([FromBody] SignupRequest request)
         {
@@ -23,7 +16,7 @@ namespace NewsAggregator.API.Controllers
                 if (!ModelState.IsValid)
                     return BadRequest("Invalid input.");
 
-                var (success, errorMessage) = await _authService.SignupAsync(request);
+                var (success, errorMessage) = await authService.SignupAsync(request);
                 if (!success)
                     return Conflict(errorMessage);
 
@@ -41,7 +34,7 @@ namespace NewsAggregator.API.Controllers
         {
             try
             {
-                var response = await _authService.LoginAsync(request);
+                var response = await authService.LoginAsync(request);
                 if (!response.Success)
                     return Unauthorized(response.ErrorMessage);
 

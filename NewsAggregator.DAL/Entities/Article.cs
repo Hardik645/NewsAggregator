@@ -6,17 +6,19 @@ namespace NewsAggregator.DAL.Entities
     public class Article
     {
         public int Id { get; set; }
-        public string Title { get; set; } = default!;
-        public string Url { get; set; } = default!;
-        public string Content { get; set; } = default!;
+        public string Title { get; set; } = string.Empty;
+        public string Url { get; set; } = string.Empty;
+        public string Content { get; set; } = string.Empty;
         public DateTime PublishedAt { get; set; }
         public int SourceId { get; set; }
-        public Source Source { get; set; } = default!;
+        public Source Source { get; set; } = null!;
         public int CategoryId { get; set; }
-        public Category Category { get; set; } = default!;
-
+        public int Likes { get; set; } = 0;
+        public int Dislikes { get; set; } = 0;
+        public Category Category { get; set; } = null!;
         public ICollection<SavedArticle> SavedArticles { get; set; } = new List<SavedArticle>();
         public ICollection<ArticleFeedback> ArticleFeedbacks { get; set; } = new List<ArticleFeedback>();
         public ICollection<Notification> Notifications { get; set; } = new List<Notification>();
+
     }
 }
