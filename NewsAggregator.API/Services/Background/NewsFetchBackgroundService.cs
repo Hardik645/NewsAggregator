@@ -30,12 +30,14 @@ namespace NewsAggregator.API.Services.Background
                                 var client = clientFactory.GetClient(source);
                                 var articles = await client.FetchArticlesAsync();
                                 await articleRepository.SaveArticlesAsync(articles);
+                                await sourceRepository.UpdateActiveStatusAsync(source, true);
                                 await articleRepository.CategorizeUnknownArticlesByKeywordsAsync();
                                 await notificationRepository.AddCategoryAndKeywordNotificationsForArticlesAsync(articles);
                                 logger.LogInformation("Fetched and stored articles for source: {Name}", source.Name);
                             }
                             catch (Exception ex)
                             {
+                                await sourceRepository.UpdateActiveStatusAsync(source, false);
                                 logger.LogError(ex, "Error fetching articles for source: {Name}", source.Name);
                             }
                         }

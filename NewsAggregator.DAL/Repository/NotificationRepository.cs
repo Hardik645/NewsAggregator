@@ -111,11 +111,10 @@ namespace NewsAggregator.DAL.Repository
                     Type = "Category"
                 }).ToList();
 
-                
                 var keywordUserIds = await _dbContext.NotificationKeywords
                     .Where(nk =>
-                        article.Title.Contains(nk.Keyword, StringComparison.OrdinalIgnoreCase) ||
-                        article.Content.Contains(nk.Keyword, StringComparison.OrdinalIgnoreCase))
+                        article.Title.ToLower().Contains(nk.Keyword.ToLower()) ||
+                        article.Content.ToLower().Contains(nk.Keyword.ToLower()))
                     .Select(nk => nk.UserId)
                     .Distinct()
                     .ToListAsync();

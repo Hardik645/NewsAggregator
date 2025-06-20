@@ -1,6 +1,5 @@
 using NewsAggregator.DAL.Entities;
 using NewsAggregator.DAL.Repository;
-using System.Security.Claims;
 
 namespace NewsAggregator.API.Services
 {

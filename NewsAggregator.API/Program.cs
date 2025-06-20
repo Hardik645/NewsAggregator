@@ -66,10 +66,13 @@ internal class Program
         builder.Services.AddScoped<ISourceRepository, SourceRepository>();
         builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
         builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+        builder.Services.AddScoped<ISourceRepository, SourceRepository>();
 
         builder.Services.AddScoped<INewsService, NewsService>();
         builder.Services.AddScoped<IArticleService, ArticleService>();
         builder.Services.AddScoped<INotificationService, NotificationService>();
+        builder.Services.AddScoped<ISourceService, SourceService>();
+        builder.Services.AddScoped<ICategoryService, CategoryService>();
 
         builder.Services.AddHttpClient<INewsApiClient>();
         
