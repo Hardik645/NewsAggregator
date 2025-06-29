@@ -11,7 +11,7 @@ namespace NewsAggregator.DAL.Repository
         Task<List<Article>> GetArticlesByDateRangeAsync(DateOnly start, DateOnly end);
         Task<List<Article>> GetArticlesByCategoryAndDateAsync(string category, DateTime date);
         Task<List<Article>> GetArticlesByCategoryAndDateRangeAsync(string category, DateOnly start, DateOnly end);
-        Task<List<Article>> SearchArticlesAsync(string query, DateTime? start, DateTime? end, string? sortBy);
+        Task<List<Article>> SearchArticlesAsync(string query, DateOnly? start, DateOnly? end, string? sortBy);
         Task<bool> SaveArticleForUserAsync(int articleId, Guid userId);
         Task<bool> DeleteSavedArticleForUserAsync(int articleId, Guid userId);
         Task<List<Article>> GetSavedArticlesForUserAsync(Guid userId);
@@ -134,7 +134,7 @@ namespace NewsAggregator.DAL.Repository
                 .ToListAsync();
         }
 
-        public async Task<List<Article>> SearchArticlesAsync(string query, DateTime? start, DateTime? end, string? sortBy)
+        public async Task<List<Article>> SearchArticlesAsync(string query, DateOnly? start, DateOnly? end, string? sortBy)
         {
             var articlesQuery = _context.Articles.AsQueryable();
 
@@ -147,12 +147,14 @@ namespace NewsAggregator.DAL.Repository
 
             if (start.HasValue)
             {
-                articlesQuery = articlesQuery.Where(a => a.PublishedAt >= start.Value);
+                var startDateTime = start.Value.ToDateTime(TimeOnly.MinValue);
+                articlesQuery = articlesQuery.Where(a => a.PublishedAt >= startDateTime);
             }
 
             if (end.HasValue)
             {
-                articlesQuery = articlesQuery.Where(a => a.PublishedAt <= end.Value);
+                var endDateTime = end.Value.ToDateTime(TimeOnly.MaxValue);
+                articlesQuery = articlesQuery.Where(a => a.PublishedAt <= endDateTime);
             }
 
             if (!string.IsNullOrEmpty(sortBy))

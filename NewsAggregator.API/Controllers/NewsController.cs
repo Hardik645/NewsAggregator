@@ -57,8 +57,8 @@ namespace NewsAggregator.API.Controllers
         [HttpGet("search")]
         public async Task<IActionResult> SearchNews(
             [FromQuery] string query,
-            [FromQuery] DateTime? startDate,
-            [FromQuery] DateTime? endDate,
+            [FromQuery] DateOnly? startDate,
+            [FromQuery] DateOnly? endDate,
             [FromQuery] string? sortBy)
         {
             try

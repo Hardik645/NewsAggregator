@@ -8,7 +8,7 @@ namespace NewsAggregator.API.Services
         Task<List<Article>> GetTodaysNewsAsync(string? category);
         Task<List<Article>> GetNewsByDateRangeAsync(DateOnly startDate, DateOnly endDate, string? category);
         Task<List<Article>> GetTodaysNewsByCategoryAsync(string category);
-        Task<List<Article>> SearchNewsAsync(string query, DateTime? startDate, DateTime? endDate, string? sortBy);
+        Task<List<Article>> SearchNewsAsync(string query, DateOnly? startDate, DateOnly? endDate, string? sortBy);
     }
 
     public class NewsService(IArticleRepository articleRepository) : INewsService
@@ -70,7 +70,7 @@ namespace NewsAggregator.API.Services
             }
         }
 
-        public async Task<List<Article>> SearchNewsAsync(string query, DateTime? startDate, DateTime? endDate, string? sortBy)
+        public async Task<List<Article>> SearchNewsAsync(string query, DateOnly? startDate, DateOnly? endDate, string? sortBy)
         {
             try
             {
