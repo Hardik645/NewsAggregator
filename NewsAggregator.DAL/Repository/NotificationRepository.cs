@@ -25,11 +25,39 @@ namespace NewsAggregator.DAL.Repository
 
         public async Task<List<Notification>> GetUserNotificationsAsync(Guid userId)
         {
-            return await _dbContext.Notifications
+            var notifications = await _dbContext.Notifications
                 .Include(n => n.Article)
+                .Include(n => n.Article.Source)
+                .Include(n => n.Article.Category)
                 .Where(n => n.UserId == userId)
                 .OrderByDescending(n => n.SentAt)
                 .ToListAsync();
+
+            var mappedNotifications = notifications.Select(n => new Notification
+            {
+                Id = n.Id,
+                UserId = n.UserId,
+                ArticleId = n.ArticleId,
+                SentAt = n.SentAt,
+                Type = n.Type,
+                Article = new Article
+                {
+                    Id = n.Article.Id,
+                    Title = n.Article.Title,
+                    Url = n.Article.Url,
+                    Source = new Source
+                    {
+                        Name = n.Article.Source.Name
+                    },
+                    Category = new Category
+                    {
+                        Name = n.Article.Category.Name
+                    }
+                    
+                }
+            }).ToList();
+
+            return mappedNotifications;
         }
 
         public async Task<List<string>> GetUserEnabledCategoriesAsync(Guid userId)
@@ -50,7 +78,7 @@ namespace NewsAggregator.DAL.Repository
 
         public async Task<bool> SetCategoryNotificationAsync(Guid userId, string category, bool enabled)
         {
-            var cat = await _dbContext.Categories.FirstOrDefaultAsync(c => c.Name == category);
+            var cat = await _dbContext.Categories.FirstOrDefaultAsync(c => c.Name == category.ToLower());
             if (cat == null) return false;
 
             var pref = await _dbContext.NotificationPreferences
