@@ -8,13 +8,15 @@ namespace NewsAggregator.DAL.Repository
     {
         Task SaveArticlesAsync(IEnumerable<Article> articles);
         Task<int> CategorizeUnknownArticlesByKeywordsAsync();
-        Task<List<Article>> GetArticlesByDateRangeAsync(DateTime start, DateTime end);
+        Task<List<Article>> GetArticlesByDateRangeAsync(DateOnly start, DateOnly end);
         Task<List<Article>> GetArticlesByCategoryAndDateAsync(string category, DateTime date);
+        Task<List<Article>> GetArticlesByCategoryAndDateRangeAsync(string category, DateOnly start, DateOnly end);
         Task<List<Article>> SearchArticlesAsync(string query, DateTime? start, DateTime? end, string? sortBy);
         Task<bool> SaveArticleForUserAsync(int articleId, Guid userId);
         Task<bool> DeleteSavedArticleForUserAsync(int articleId, Guid userId);
         Task<List<Article>> GetSavedArticlesForUserAsync(Guid userId);
         Task<bool> SetArticleFeedbackAsync(int articleId, Guid userId, bool isLike);
+        Task<Article?> GetArticleByIdAsync(int articleId);
     }
 
     public class ArticleRepository : IArticleRepository
@@ -67,10 +69,12 @@ namespace NewsAggregator.DAL.Repository
             await _context.SaveChangesAsync();
         }
 
-        public async Task<List<Article>> GetArticlesByDateRangeAsync(DateTime start, DateTime end)
+        public async Task<List<Article>> GetArticlesByDateRangeAsync(DateOnly start, DateOnly end)
         {
+            var startDateTime = start.ToDateTime(TimeOnly.MinValue);
+            var endDateTime = end.ToDateTime(TimeOnly.MaxValue);
             return await _context.Articles
-                .Where(a => a.PublishedAt >= start && a.PublishedAt <= end)
+                .Where(a => a.PublishedAt >= startDateTime && a.PublishedAt <= endDateTime)
                 .ToListAsync();
         }
 
@@ -94,6 +98,38 @@ namespace NewsAggregator.DAL.Repository
                         Id = a.Category.Id,
                         Name = a.Category.Name
                     }
+                })
+                .ToListAsync();
+        }
+
+        public async Task<List<Article>> GetArticlesByCategoryAndDateRangeAsync(string category, DateOnly start, DateOnly end)
+        {
+            var startDateTime = start.ToDateTime(TimeOnly.MinValue);
+            var endDateTime = end.ToDateTime(TimeOnly.MaxValue);
+
+            return await _context.Articles
+                .Include(a => a.Category)
+                .Where(a =>
+                    a.Category.Name == category &&
+                    a.PublishedAt >= startDateTime &&
+                    a.PublishedAt <= endDateTime)
+                .Select(a => new Article
+                {
+                    Id = a.Id,
+                    Title = a.Title,
+                    Url = a.Url,
+                    Content = a.Content,
+                    PublishedAt = a.PublishedAt,
+                    SourceId = a.SourceId,
+                    Source = a.Source,
+                    CategoryId = a.CategoryId,
+                    Category = new Category
+                    {
+                        Id = a.Category.Id,
+                        Name = a.Category.Name
+                    },
+                    Likes = a.Likes,
+                    Dislikes = a.Dislikes
                 })
                 .ToListAsync();
         }
@@ -215,6 +251,64 @@ namespace NewsAggregator.DAL.Repository
 
             await _context.SaveChangesAsync();
             return true;
+        }
+
+        public async Task<Article?> GetArticleByIdAsync(int articleId)
+        {
+            var result = await _context.Articles
+                .Where(a => a.Id == articleId)
+                .Select(a => new
+                {
+                    a.Id,
+                    a.Title,
+                    a.Url,
+                    a.Content,
+                    a.PublishedAt,
+                    a.SourceId,
+                    Source = a.Source == null ? null : new
+                    {
+                        a.Source.Id,
+                        a.Source.Name,
+                        a.Source.ApiKey,
+                        a.Source.ApiUrl,
+                        a.Source.LastAccessedDate
+                    },
+                    a.CategoryId,
+                    Category = a.Category == null ? null : new
+                    {
+                        a.Category.Id,
+                        a.Category.Name
+                    },
+                    a.Likes,
+                    a.Dislikes
+                })
+                .AsNoTracking()
+                .FirstOrDefaultAsync();
+
+            if (result == null) return null;
+
+            return new Article
+            {
+                Id = result.Id,
+                Title = result.Title,
+                Url = result.Url,
+                Content = result.Content,
+                PublishedAt = result.PublishedAt,
+                SourceId = result.SourceId,
+                Source = new Source
+                {
+                    Id = result.Source!.Id,
+                    Name = result.Source.Name,
+                },
+                CategoryId = result.CategoryId,
+                Category = new Category
+                {
+                    Id = result.Category!.Id,
+                    Name = result.Category.Name
+                },
+                Likes = result.Likes,
+                Dislikes = result.Dislikes
+            };
         }
     }
 }

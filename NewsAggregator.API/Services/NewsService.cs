@@ -5,21 +5,29 @@ namespace NewsAggregator.API.Services
 {
     public interface INewsService
     {
-        Task<List<Article>> GetTodaysNewsAsync();
-        Task<List<Article>> GetNewsByDateRangeAsync(DateTime startDate, DateTime endDate);
+        Task<List<Article>> GetTodaysNewsAsync(string? category);
+        Task<List<Article>> GetNewsByDateRangeAsync(DateOnly startDate, DateOnly endDate, string? category);
         Task<List<Article>> GetTodaysNewsByCategoryAsync(string category);
         Task<List<Article>> SearchNewsAsync(string query, DateTime? startDate, DateTime? endDate, string? sortBy);
     }
 
     public class NewsService(IArticleRepository articleRepository) : INewsService
     {
-        public async Task<List<Article>> GetTodaysNewsAsync()
+        public async Task<List<Article>> GetTodaysNewsAsync(string? category)
         {
             try
             {
-                var todayStartTime = DateTime.UtcNow.Date;
-                var todayEndTime = DateTime.UtcNow.Date.Add(TimeSpan.FromDays(1));
-                return await articleRepository.GetArticlesByDateRangeAsync(todayStartTime, todayEndTime);
+                var today = DateTime.UtcNow.Date;
+                if (string.IsNullOrEmpty(category) || string.Equals(category, "all", StringComparison.OrdinalIgnoreCase))
+                {
+                    var todayStartTime = DateOnly.FromDateTime(today);
+                    var todayEndTime = DateOnly.FromDateTime(today.AddDays(1));
+                    return await articleRepository.GetArticlesByDateRangeAsync(todayStartTime, todayEndTime);
+                }
+                else
+                {
+                    return await articleRepository.GetArticlesByCategoryAndDateAsync(category, today);
+                }
             }
             catch (Exception ex)
             {
@@ -27,11 +35,21 @@ namespace NewsAggregator.API.Services
             }
         }
 
-        public async Task<List<Article>> GetNewsByDateRangeAsync(DateTime startDate, DateTime endDate)
+        public async Task<List<Article>> GetNewsByDateRangeAsync(DateOnly startDate, DateOnly endDate, string? category)
         {
             try
             {
-                return await articleRepository.GetArticlesByDateRangeAsync(startDate.Date, endDate.Date);
+                if (string.IsNullOrEmpty(category) || string.Equals(category, "all", StringComparison.OrdinalIgnoreCase))
+                {
+                    return await articleRepository.GetArticlesByDateRangeAsync(startDate, endDate);
+                }
+                else
+                {
+                    var startDateTime = startDate.ToDateTime(TimeOnly.MinValue);
+                    var endDateTime = endDate.ToDateTime(TimeOnly.MaxValue);
+
+                    return await articleRepository.GetArticlesByCategoryAndDateRangeAsync(category,startDate, endDate);
+                }
             }
             catch (Exception ex)
             {

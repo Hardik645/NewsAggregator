@@ -12,7 +12,7 @@ namespace NewsAggregator.API.Controllers
     {
         private readonly IArticleService _articleService = articleService;
 
-        [HttpPost("save")]
+        [HttpPost("savedArticles")]
         public async Task<IActionResult> SaveArticle([FromQuery] int articleId)
         {
             try
@@ -20,7 +20,7 @@ namespace NewsAggregator.API.Controllers
                 var userId = UserContextHelper.GetUserId(User);
                 bool result = await _articleService.SaveArticleAsync(articleId, userId);
                 if (!result)
-                    return BadRequest("Could not save article.");
+                    return Conflict("Article already saved");
 
                 return Ok("Article saved successfully.");
             }
@@ -30,7 +30,7 @@ namespace NewsAggregator.API.Controllers
             }
         }
 
-        [HttpGet("save")]
+        [HttpGet("savedArticles")]
         public async Task<IActionResult> GetSavedArticles()
         {
             try
@@ -45,7 +45,7 @@ namespace NewsAggregator.API.Controllers
             }
         }
 
-        [HttpDelete]
+        [HttpDelete("savedArticles")]
         public async Task<IActionResult> DeleteSavedArticle([FromQuery] int id)
         {
             try
@@ -73,6 +73,22 @@ namespace NewsAggregator.API.Controllers
                 if (!result)
                     return BadRequest("Could not update feedback.");
                 return Ok(isLike ? "Article liked." : "Article disliked.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpGet("{articleId}")]
+        public async Task<IActionResult> GetArticleById(int articleId)
+        {
+            try
+            {
+                var article = await _articleService.GetArticleByIdAsync(articleId);
+                if (article == null)
+                    return NotFound();
+                return Ok(article);
             }
             catch (Exception ex)
             {

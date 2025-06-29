@@ -10,11 +10,11 @@ namespace NewsAggregator.API.Controllers
     public class NewsController(INewsService newsService) : ControllerBase
     {
         [HttpGet("today")]
-        public async Task<IActionResult> GetTodaysNews()
+        public async Task<IActionResult> GetTodaysNews([FromQuery] string? category)
         {
             try
             {
-                var articles = await newsService.GetTodaysNewsAsync();
+                var articles = await newsService.GetTodaysNewsAsync(category);
                 return Ok(articles);
             }
             catch (Exception ex)
@@ -24,11 +24,14 @@ namespace NewsAggregator.API.Controllers
         }
 
         [HttpGet("date-range")]
-        public async Task<IActionResult> GetNewsByDateRange([FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
+        public async Task<IActionResult> GetNewsByDateRange(
+            [FromQuery] DateOnly startDate,
+            [FromQuery] DateOnly endDate,
+            [FromQuery] string? category)
         {
             try
             {
-                var articles = await newsService.GetNewsByDateRangeAsync(startDate, endDate);
+                var articles = await newsService.GetNewsByDateRangeAsync(startDate, endDate, category);
                 return Ok(articles);
             }
             catch (Exception ex)

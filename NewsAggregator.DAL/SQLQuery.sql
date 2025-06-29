@@ -1,10 +1,10 @@
-﻿--INSERT INTO Sources ( Name, ApiKey, ApiUrl) VALUES
---( 'NewsApiOrg', 'dfbe0c57160b48aabca15477250e85d6', 'https://newsapi.org/v2/top-headlines?country=us'),
---( 'TheNewsApi', '0Emr4xnmh8AMvkMra0zDehqlBnJ8OJTXusc7JrhI', 'https://api.thenewsapi.com/v1/news/top?locale=us&limit=3');
+﻿INSERT INTO Sources ( Name, ApiKey, ApiUrl) VALUES
+( 'NewsApiOrg', 'dfbe0c57160b48aabca15477250e85d6', 'https://newsapi.org/v2/top-headlines?country=us'),
+( 'TheNewsApi', '0Emr4xnmh8AMvkMra0zDehqlBnJ8OJTXusc7JrhI', 'https://api.thenewsapi.com/v1/news/top?locale=us&limit=3');
 
 
 INSERT INTO Categories (Name) VALUES
-('unkown')
+('unkown'),
 ('general'),
 ('science'),
 ('sports'),
@@ -31,3 +31,5 @@ INSERT INTO CategoryKeywords (Keyword, CategoryId) VALUES
 ('election', 8), -- politics
 ('recipe', 9),   -- food
 ('travel', 10);
+
+update categories set Name = 'unknown' where Name = 'unkown'
