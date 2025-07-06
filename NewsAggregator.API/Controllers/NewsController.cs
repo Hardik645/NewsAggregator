@@ -7,15 +7,17 @@ namespace NewsAggregator.API.Controllers
     [ApiController]
     [Route("api/news")]
     [Authorize]
-    public class NewsController(INewsService newsService) : ControllerBase
+    public class NewsController(INewsService newsService, IRecommendationService recommendationService) : ControllerBase
     {
         [HttpGet("today")]
         public async Task<IActionResult> GetTodaysNews([FromQuery] string? category)
         {
             try
             {
+                var userId = UserContextHelper.GetUserId(User);
                 var articles = await newsService.GetTodaysNewsAsync(category);
-                return Ok(articles);
+                var recommendationalArticles = await recommendationService.SortArticlesByUserScoreAsync(userId, articles);
+                return Ok(recommendationalArticles);
             }
             catch (Exception ex)
             {
@@ -31,8 +33,10 @@ namespace NewsAggregator.API.Controllers
         {
             try
             {
+                var userId = UserContextHelper.GetUserId(User);
                 var articles = await newsService.GetNewsByDateRangeAsync(startDate, endDate, category);
-                return Ok(articles);
+                var recommendationalArticles = await recommendationService.SortArticlesByUserScoreAsync(userId, articles);
+                return Ok(recommendationalArticles);
             }
             catch (Exception ex)
             {
@@ -63,8 +67,10 @@ namespace NewsAggregator.API.Controllers
         {
             try
             {
+                var userId = UserContextHelper.GetUserId(User);
                 var articles = await newsService.SearchNewsAsync(query, startDate, endDate, sortBy);
-                return Ok(articles);
+                var recommendationalArticles = await recommendationService.SortArticlesByUserScoreAsync(userId, articles);
+                return Ok(recommendationalArticles);
             }
             catch (Exception ex)
             {

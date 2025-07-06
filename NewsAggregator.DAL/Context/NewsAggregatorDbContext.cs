@@ -16,6 +16,8 @@ namespace NewsAggregator.DAL.Context
         public DbSet<ArticleFeedback> ArticleFeedbacks { get; set; }
         public DbSet<CategoryKeyword> CategoryKeywords { get; set; }
         public DbSet<HiddenKeyword> HiddenKeywords { get; set; }
+        public DbSet<UserRecommendation> UserRecommendations { get; set; } = null!;
+        public DbSet<UserActionLog> UserActionLogs { get; set; } = null!;
 
         public NewsAggregatorDbContext(DbContextOptions<NewsAggregatorDbContext> options)
             : base(options) { }

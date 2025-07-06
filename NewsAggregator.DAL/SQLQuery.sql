@@ -22,6 +22,8 @@ update Users set Role= 'Admin' where Username = 'admin'
 
 select * from articles where id = 93
 
+select * from UserRecommendations
+
 --dotnet ef migrations add InitialCreate --project NewsAggregator.DAL --startup-project NewsAggregator.API
 
 --dotnet ef database update --project NewsAggregator.DAL --startup-project NewsAggregator.API

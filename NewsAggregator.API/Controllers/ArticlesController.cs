@@ -8,9 +8,8 @@ namespace NewsAggregator.API.Controllers
     [ApiController]
     [Route("api/articles")]
     [Authorize]
-    public class ArticlesController(IArticleService articleService) : ControllerBase
+    public class ArticlesController(IArticleService articleService, IUserActionLoggingService userActionLoggingService) : ControllerBase
     {
-        private readonly IArticleService _articleService = articleService;
 
         [HttpPost("saveArticle")]
         public async Task<IActionResult> SaveArticle([FromQuery] int articleId)
@@ -18,10 +17,10 @@ namespace NewsAggregator.API.Controllers
             try
             {
                 var userId = UserContextHelper.GetUserId(User);
-                bool result = await _articleService.SaveArticleAsync(articleId, userId);
+                bool result = await articleService.SaveArticleAsync(articleId, userId);
                 if (!result)
                     return Conflict("Article already saved");
-
+                await userActionLoggingService.LogActionAsync(userId, articleId, "Save");
                 return Ok("Article saved successfully.");
             }
             catch (Exception ex)
@@ -36,7 +35,7 @@ namespace NewsAggregator.API.Controllers
             try
             {
                 var userId = UserContextHelper.GetUserId(User);
-                var saved = await _articleService.GetSavedArticlesAsync(userId);
+                var saved = await articleService.GetSavedArticlesAsync(userId);
                 return Ok(saved);
             }
             catch (Exception ex)
@@ -51,7 +50,7 @@ namespace NewsAggregator.API.Controllers
             try
             {
                 var userId = UserContextHelper.GetUserId(User);
-                bool result = await _articleService.DeleteSavedArticleAsync(id, userId);
+                bool result = await articleService.DeleteSavedArticleAsync(id, userId);
                 if (!result)
                     return BadRequest("Could not delete article.");
                 
@@ -69,14 +68,18 @@ namespace NewsAggregator.API.Controllers
             try
             {
                 var userId = UserContextHelper.GetUserId(User);
-                var result = await _articleService.SetArticleFeedbackAsync(articleId, userId, isLike, isReported);
+                var result = await articleService.SetArticleFeedbackAsync(articleId, userId, isLike, isReported);
                 if (!result)
                     return BadRequest("Could not update feedback.");
 
                 if (isReported.HasValue && isReported.Value)
                     return Ok("Article reported.");
                 if (isLike.HasValue)
+                {
+                    if(isLike.Value)
+                        await userActionLoggingService.LogActionAsync(userId, articleId, "Like");
                     return Ok(isLike.Value ? "Article liked." : "Article disliked.");
+                }
                 return Ok("Feedback updated.");
             }
             catch (Exception ex)
@@ -90,9 +93,11 @@ namespace NewsAggregator.API.Controllers
         {
             try
             {
-                var article = await _articleService.GetArticleByIdAsync(articleId);
+                var userId = UserContextHelper.GetUserId(User);
+                var article = await articleService.GetArticleByIdAsync(articleId);
                 if (article == null)
                     return NotFound();
+                await userActionLoggingService.LogActionAsync(userId, articleId, "View");
                 return Ok(article);
             }
             catch (Exception ex)
@@ -108,7 +113,7 @@ namespace NewsAggregator.API.Controllers
         {
             try
             {
-                await _articleService.HideArticlesAsync(id);
+                await articleService.HideArticlesAsync(id);
                 return Ok(new { Message = $"Articles marked as hidden." });
             }
             catch (Exception ex)
@@ -123,7 +128,7 @@ namespace NewsAggregator.API.Controllers
         {
             try
             {
-                var articles = await _articleService.GetAllReportedNotHiddenArticlesAsync();
+                var articles = await articleService.GetAllReportedNotHiddenArticlesAsync();
                 return Ok(articles);
             }
             catch (Exception ex)

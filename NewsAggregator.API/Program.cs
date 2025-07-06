@@ -75,11 +75,14 @@ internal class Program
         builder.Services.AddScoped<ISourceService, SourceService>();
         builder.Services.AddScoped<ICategoryService, CategoryService>();
         builder.Services.AddScoped<IKeywordService, KeywordService>();
+        builder.Services.AddScoped<IUserActionLoggingService, UserActionLoggingService>();
 
         builder.Services.AddHttpClient<INewsApiClient>();
         
         builder.Services.AddSingleton<NewsApiClientFactory>();
+        builder.Services.AddScoped<IRecommendationService, RecommendationService>();
         builder.Services.AddHostedService<NewsFetchBackgroundService>();
+        builder.Services.AddHostedService<RecommendationEngineBackgroundService>();
 
         builder.Services.AddAuthentication(options =>
         {
