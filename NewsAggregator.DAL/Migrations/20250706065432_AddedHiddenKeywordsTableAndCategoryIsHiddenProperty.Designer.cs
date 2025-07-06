@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NewsAggregator.DAL.Context;
 
@@ -11,9 +12,11 @@ using NewsAggregator.DAL.Context;
 namespace NewsAggregator.DAL.Migrations
 {
     [DbContext(typeof(NewsAggregatorDbContext))]
-    partial class NewsAggregatorDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250706065432_AddedHiddenKeywordsTableAndCategoryIsHiddenProperty")]
+    partial class AddedHiddenKeywordsTableAndCategoryIsHiddenProperty
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -40,17 +43,11 @@ namespace NewsAggregator.DAL.Migrations
                     b.Property<int>("Dislikes")
                         .HasColumnType("int");
 
-                    b.Property<bool>("IsHidden")
-                        .HasColumnType("bit");
-
                     b.Property<int>("Likes")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("PublishedAt")
                         .HasColumnType("datetime2");
-
-                    b.Property<int>("ReportCount")
-                        .HasColumnType("int");
 
                     b.Property<int>("SourceId")
                         .HasColumnType("int");
@@ -87,9 +84,6 @@ namespace NewsAggregator.DAL.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<bool>("IsLike")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsReported")
                         .HasColumnType("bit");
 
                     b.Property<Guid>("UserId")
@@ -169,13 +163,9 @@ namespace NewsAggregator.DAL.Migrations
 
                     b.Property<string>("Keyword")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("Keyword")
-                        .IsUnique();
 
                     b.ToTable("HiddenKeywords");
                 });

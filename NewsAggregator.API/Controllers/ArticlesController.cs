@@ -12,7 +12,7 @@ namespace NewsAggregator.API.Controllers
     {
         private readonly IArticleService _articleService = articleService;
 
-        [HttpPost("savedArticles")]
+        [HttpPost("saveArticle")]
         public async Task<IActionResult> SaveArticle([FromQuery] int articleId)
         {
             try
@@ -64,15 +64,20 @@ namespace NewsAggregator.API.Controllers
         }
 
         [HttpPost("{articleId}/feedback")]
-        public async Task<IActionResult> SetArticleFeedback(int articleId, [FromQuery] bool isLike)
+        public async Task<IActionResult> SetArticleFeedback(int articleId, [FromQuery] bool? isLike, [FromQuery] bool? isReported)
         {
             try
             {
                 var userId = UserContextHelper.GetUserId(User);
-                var result = await _articleService.SetArticleFeedbackAsync(articleId, userId, isLike);
+                var result = await _articleService.SetArticleFeedbackAsync(articleId, userId, isLike, isReported);
                 if (!result)
                     return BadRequest("Could not update feedback.");
-                return Ok(isLike ? "Article liked." : "Article disliked.");
+
+                if (isReported.HasValue && isReported.Value)
+                    return Ok("Article reported.");
+                if (isLike.HasValue)
+                    return Ok(isLike.Value ? "Article liked." : "Article disliked.");
+                return Ok("Feedback updated.");
             }
             catch (Exception ex)
             {
@@ -93,6 +98,37 @@ namespace NewsAggregator.API.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, ex.Message);
+            }
+        }
+
+
+        [HttpPost("hideArticles/{id}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> HideArticles(int id)
+        {
+            try
+            {
+                await _articleService.HideArticlesAsync(id);
+                return Ok(new { Message = $"Articles marked as hidden." });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "An error occurred while hiding articles.", Details = ex.Message });
+            }
+        }
+
+        [HttpGet("reportedArticles")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetAllReportedArticles()
+        {
+            try
+            {
+                var articles = await _articleService.GetAllReportedNotHiddenArticlesAsync();
+                return Ok(articles);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "An error occurred while retrieving articles.", Details = ex.Message });
             }
         }
     }

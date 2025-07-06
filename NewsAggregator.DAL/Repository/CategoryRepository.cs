@@ -11,10 +11,8 @@ namespace NewsAggregator.DAL.Repository
         Task<Category?> GetByNameAsync(string name);
         Task<Category?> GetByIdAsync(int id);
         Task<Category> AddCategoryAsync(Category category);
-        Task<List<CategoryKeyword>> GetKeywordsByCategoryIdAsync(int categoryId);
         Task<bool> DeleteCategoryAsync(int id);
-        Task AddKeywordsAsync(int categoryId, IEnumerable<string> keywords);
-        Task<bool> DeleteKeywordAsync(int keywordId);
+        Task SetCategoryVisibilityAsync(int categoryId, bool isHidden);
     }
 
     public class CategoryRepository(NewsAggregatorDbContext _dbContext) : ICategoryRepository
@@ -25,6 +23,7 @@ namespace NewsAggregator.DAL.Repository
                 .AsNoTracking()
                 .Include(c => c.CategoryKeywords)
                 .Where(c => !c.IsDeleted)
+                .Where(c => !c.IsHidden)
                 .Select(c => new Category
                 {
                     Id = c.Id,
@@ -42,15 +41,14 @@ namespace NewsAggregator.DAL.Repository
                 })
                 .ToListAsync();
         }
-
         public async Task<Category?> GetByNameAsync(string name)
         {
             return await _dbContext.Categories
-                .FirstOrDefaultAsync(c => c.Name.ToLower() == name.ToLower());
+                .FirstOrDefaultAsync(c => c.Name.ToLower() == name.ToLower() && !c.IsDeleted && !c.IsHidden);
         }
         public async Task<Category?> GetByIdAsync(int id)
         {
-            return await _dbContext.Categories.FirstOrDefaultAsync(c => c.Id == id && !c.IsDeleted);
+            return await _dbContext.Categories.FirstOrDefaultAsync(c => c.Id == id && !c.IsDeleted && !c.IsHidden);
         }
         public async Task<Category> AddCategoryAsync(Category category)
         {
@@ -58,7 +56,6 @@ namespace NewsAggregator.DAL.Repository
             await _dbContext.SaveChangesAsync();
             return category;
         }
-
         public async Task<bool> DeleteCategoryAsync(int id)
         {
             var category = await _dbContext.Categories.FindAsync(id);
@@ -68,35 +65,13 @@ namespace NewsAggregator.DAL.Repository
             await _dbContext.SaveChangesAsync();
             return true;
         }
-
-        public async Task AddKeywordsAsync(int categoryId, IEnumerable<string> keywords)
+        public async Task SetCategoryVisibilityAsync(int categoryId, bool isHidden)
         {
-            var keywordEntities = keywords.Select(k => new CategoryKeyword
-            {
-                CategoryId = categoryId,
-                Keyword = k.Trim(),
-                IsDeleted = false
-            });
-
-            await _dbContext.CategoryKeywords.AddRangeAsync(keywordEntities);
+            var category = await _dbContext.Categories.FindAsync(categoryId);
+            if (category == null || category.IsDeleted)
+                throw new KeyNotFoundException($"Category with ID {categoryId} not found.");
+            category.IsHidden = isHidden;
             await _dbContext.SaveChangesAsync();
-        }
-
-        public async Task<bool> DeleteKeywordAsync(int keywordId)
-        {
-            var keyword = await _dbContext.CategoryKeywords.FirstOrDefaultAsync(k => k.Id == keywordId && !k.IsDeleted);
-            if (keyword == null || keyword.IsDeleted) return false;
-
-            keyword.IsDeleted = true;
-            await _dbContext.SaveChangesAsync();
-            return true;
-        }
-
-        public async Task<List<CategoryKeyword>> GetKeywordsByCategoryIdAsync(int categoryId)
-        {
-            return await _dbContext.CategoryKeywords
-                .Where(k => k.CategoryId == categoryId && !k.IsDeleted)
-                .ToListAsync();
         }
     }
 }

@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using NewsAggregator.DAL.Context;
 using NewsAggregator.DAL.Entities;
 
@@ -15,27 +16,24 @@ namespace NewsAggregator.DAL.Repository
         Task<bool> SaveArticleForUserAsync(int articleId, Guid userId);
         Task<bool> DeleteSavedArticleForUserAsync(int articleId, Guid userId);
         Task<List<Article>> GetSavedArticlesForUserAsync(Guid userId);
-        Task<bool> SetArticleFeedbackAsync(int articleId, Guid userId, bool isLike);
+        Task<bool> SetArticleFeedbackAsync(int articleId, Guid userId, bool? isLike, bool? isReported);
         Task<Article?> GetArticleByIdAsync(int articleId);
+        Task<int> HideArticlesWithHiddenKeywordsAsync(IEnumerable<string> hiddenKeywords);
+        Task<List<Article>> GetAllReportedNotHiddenArticlesAsync();
+        Task HideArticlesAsync(int id);
     }
 
-    public class ArticleRepository : IArticleRepository
+    public class ArticleRepository(NewsAggregatorDbContext context) : IArticleRepository
     {
-        private readonly NewsAggregatorDbContext _context;
-
-        public ArticleRepository(NewsAggregatorDbContext context)
-        {
-            _context = context;
-        }
-
+        private const int ARTICLE_REPORT_THRESHOLD = 10;
         public async Task<int> CategorizeUnknownArticlesByKeywordsAsync()
         {
-            var unknownCategory = await _context.Categories
-                .FirstOrDefaultAsync(c => c.Name.ToLower() == "unknown"); 
+            var unknownCategory = await context.Categories
+                .FirstOrDefaultAsync(c => c.Name.ToLower() == "unknown");
             if (unknownCategory == null) return 0;
 
-            var keywords = await _context.CategoryKeywords.Include(ck => ck.Category).ToListAsync();
-            var articles = await _context.Articles
+            var keywords = await context.CategoryKeywords.Include(ck => ck.Category).ToListAsync();
+            var articles = await context.Articles
                 .Where(a => a.CategoryId == unknownCategory.Id)
                 .ToListAsync();
 
@@ -54,7 +52,7 @@ namespace NewsAggregator.DAL.Repository
             }
 
             if (updated > 0)
-                await _context.SaveChangesAsync();
+                await context.SaveChangesAsync();
 
             return updated;
         }
@@ -63,26 +61,26 @@ namespace NewsAggregator.DAL.Repository
         {
             foreach (var article in articles)
             {
-                if (!_context.Articles.Any(a => a.Title == article.Title))
-                    _context.Articles.Add(article);
+                if (!context.Articles.Any(a => a.Title == article.Title))
+                    context.Articles.Add(article);
             }
-            await _context.SaveChangesAsync();
+            await context.SaveChangesAsync();
         }
 
         public async Task<List<Article>> GetArticlesByDateRangeAsync(DateOnly start, DateOnly end)
         {
             var startDateTime = start.ToDateTime(TimeOnly.MinValue);
             var endDateTime = end.ToDateTime(TimeOnly.MaxValue);
-            return await _context.Articles
-                .Where(a => a.PublishedAt >= startDateTime && a.PublishedAt <= endDateTime)
+            return await context.Articles
+                .Where(a => a.PublishedAt >= startDateTime && a.PublishedAt <= endDateTime && !a.IsHidden)
                 .ToListAsync();
         }
 
         public async Task<List<Article>> GetArticlesByCategoryAndDateAsync(string category, DateTime date)
         {
-            return await _context.Articles
+            return await context.Articles
                 .Include(a => a.Category)
-                .Where(a => a.Category.Name == category && a.PublishedAt >= date.Date && a.PublishedAt < date.Date.AddDays(1))
+                .Where(a => a.Category.Name == category && a.PublishedAt >= date.Date && a.PublishedAt < date.Date.AddDays(1) && !a.IsHidden)
                 .Select(a => new Article
                 {
                     Id = a.Id,
@@ -107,12 +105,13 @@ namespace NewsAggregator.DAL.Repository
             var startDateTime = start.ToDateTime(TimeOnly.MinValue);
             var endDateTime = end.ToDateTime(TimeOnly.MaxValue);
 
-            return await _context.Articles
+            return await context.Articles
                 .Include(a => a.Category)
                 .Where(a =>
                     a.Category.Name == category &&
                     a.PublishedAt >= startDateTime &&
-                    a.PublishedAt <= endDateTime)
+                    a.PublishedAt <= endDateTime &&
+                    !a.IsHidden)
                 .Select(a => new Article
                 {
                     Id = a.Id,
@@ -136,7 +135,7 @@ namespace NewsAggregator.DAL.Repository
 
         public async Task<List<Article>> SearchArticlesAsync(string query, DateOnly? start, DateOnly? end, string? sortBy)
         {
-            var articlesQuery = _context.Articles.AsQueryable();
+            var articlesQuery = context.Articles.AsQueryable();
 
             if (!string.IsNullOrEmpty(query))
             {
@@ -167,22 +166,22 @@ namespace NewsAggregator.DAL.Repository
                 };
             }
 
-            return await articlesQuery.ToListAsync();
+            return await articlesQuery.Where(a => !a.IsHidden).ToListAsync();
         }
 
         public async Task<bool> SaveArticleForUserAsync(int articleId, Guid userId)
         {
-            var alreadySaved = await _context.SavedArticles
+            var alreadySaved = await context.SavedArticles
                 .AnyAsync(sa => sa.ArticleId == articleId && sa.UserId == userId);
             if (!alreadySaved)
             {
-                _context.SavedArticles.Add(new SavedArticle
+                context.SavedArticles.Add(new SavedArticle
                 {
                     ArticleId = articleId,
                     UserId = userId,
                     SavedAt = DateTime.UtcNow
                 });
-                await _context.SaveChangesAsync();
+                await context.SaveChangesAsync();
                 return true;
             }
             return false;
@@ -190,12 +189,12 @@ namespace NewsAggregator.DAL.Repository
 
         public async Task<bool> DeleteSavedArticleForUserAsync(int articleId, Guid userId)
         {
-            var saved = await _context.SavedArticles
+            var saved = await context.SavedArticles
                 .FirstOrDefaultAsync(sa => sa.ArticleId == articleId && sa.UserId == userId);
             if (saved != null)
             {
-                _context.SavedArticles.Remove(saved);
-                await _context.SaveChangesAsync();
+                context.SavedArticles.Remove(saved);
+                await context.SaveChangesAsync();
                 return true;
             }
             return false;
@@ -203,62 +202,83 @@ namespace NewsAggregator.DAL.Repository
 
         public async Task<List<Article>> GetSavedArticlesForUserAsync(Guid userId)
         {
-            return await _context.SavedArticles
-                .Where(sa => sa.UserId == userId)
+            return await context.SavedArticles
                 .Include(sa => sa.Article)
+                .Where(sa => sa.UserId == userId && !sa.Article.IsHidden)
                 .Select(sa => sa.Article)
                 .AsNoTracking()
                 .ToListAsync();
         }
 
-        public async Task<bool> SetArticleFeedbackAsync(int articleId, Guid userId, bool isLike)
+        public async Task<bool> SetArticleFeedbackAsync(int articleId, Guid userId, bool? isLike, bool? isReported)
         {
-            var article = await _context.Articles.FirstOrDefaultAsync(a => a.Id == articleId);
+            var article = await context.Articles.FirstOrDefaultAsync(a => a.Id == articleId && !a.IsHidden);
             if (article == null) return false;
 
-            var feedback = await _context.ArticleFeedbacks
+            var feedback = await context.ArticleFeedbacks
                 .FirstOrDefaultAsync(f => f.ArticleId == articleId && f.UserId == userId);
 
             if (feedback != null)
             {
-                if (feedback.IsLike == isLike) return true;
+                if (isLike.HasValue)
+                {
+                    if (feedback.IsLike.HasValue && feedback.IsLike.Value == isLike.Value) return true;
+                    if (isLike.Value)
+                    {
+                        feedback.IsLike = true;
+                        article.Likes++;
+                        article.Dislikes = Math.Max(0, article.Dislikes - 1);
+                    }
+                    else
+                    {
+                        feedback.IsLike = false;
+                        article.Dislikes++;
+                        article.Likes = Math.Max(0, article.Likes - 1);
+                    }
+                }
+                if (isReported.HasValue && isReported.Value == true)
+                {
+                    if (!feedback.IsReported)
+                    {
+                        article.ReportCount++;
+                        if (article.ReportCount >= ARTICLE_REPORT_THRESHOLD)
+                        {
+                            article.IsHidden = true;
+                        }
+                        feedback.IsReported = true;
+                    }
+                }
 
-                if (isLike)
-                {
-                    feedback.IsLike = true;
-                    article.Likes++;
-                    article.Dislikes = Math.Max(0, article.Dislikes - 1);
-                }
-                else
-                {
-                    feedback.IsLike = false;
-                    article.Dislikes++;
-                    article.Likes = Math.Max(0, article.Likes - 1);
-                }
             }
             else
             {
-                _context.ArticleFeedbacks.Add(new ArticleFeedback
+                context.ArticleFeedbacks.Add(new ArticleFeedback
                 {
                     ArticleId = articleId,
                     UserId = userId,
-                    IsLike = isLike,
+                    IsLike = isLike??false,
+                    IsReported = isReported ?? false,
                     CreatedAt = DateTime.UtcNow
                 });
-                if (isLike)
-                    article.Likes++;
-                else
-                    article.Dislikes++;
+                if (isLike.HasValue)
+                {
+                    if (isLike.Value)
+                        article.Likes++;
+                    else
+                        article.Dislikes++;
+                }
+               
+                article.ReportCount++;
             }
 
-            await _context.SaveChangesAsync();
+            await context.SaveChangesAsync();
             return true;
         }
 
         public async Task<Article?> GetArticleByIdAsync(int articleId)
         {
-            var result = await _context.Articles
-                .Where(a => a.Id == articleId)
+            var result = await context.Articles
+                .Where(a => a.Id == articleId && !a.IsHidden)
                 .Select(a => new
                 {
                     a.Id,
@@ -282,7 +302,9 @@ namespace NewsAggregator.DAL.Repository
                         a.Category.Name
                     },
                     a.Likes,
-                    a.Dislikes
+                    a.Dislikes,
+                    a.IsHidden,
+                    a.ReportCount
                 })
                 .AsNoTracking()
                 .FirstOrDefaultAsync();
@@ -311,6 +333,44 @@ namespace NewsAggregator.DAL.Repository
                 Likes = result.Likes,
                 Dislikes = result.Dislikes
             };
+        }
+
+        public async Task<int> HideArticlesWithHiddenKeywordsAsync(IEnumerable<string> hiddenKeywords)
+        {
+            var articles = await context.Articles.ToListAsync();
+            int updatedCount = 0;
+            foreach (var article in articles)
+            {
+                foreach (var keyword in hiddenKeywords)
+                {
+                    if (article.Title.Contains(keyword, StringComparison.OrdinalIgnoreCase) ||
+                        article.Content.Contains(keyword, StringComparison.OrdinalIgnoreCase))
+                    {
+                        article.IsHidden = true;
+                        updatedCount++;
+                        break;
+                    }
+                }
+            }
+            if (updatedCount > 0)
+                await context.SaveChangesAsync();
+            return updatedCount;
+        }
+
+        public async Task<List<Article>> GetAllReportedNotHiddenArticlesAsync()
+        {
+            return await context.Articles
+                .Where(a => a.ReportCount > 0 && !a.IsHidden)
+                .ToListAsync();
+        }
+        public async Task HideArticlesAsync(int id)
+        {
+            var article = await context.Articles.FindAsync(id);
+            if (article != null)
+            {
+                article.IsHidden = true;
+                await context.SaveChangesAsync();
+            }
         }
     }
 }

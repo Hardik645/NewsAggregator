@@ -17,6 +17,10 @@ INSERT INTO Categories (Name) VALUES
 ('travel');
 
 SELECT * FROM Categories
+select * from Users
+update Users set Role= 'Admin' where Username = 'admin'
+
+select * from articles where id = 93
 
 --dotnet ef migrations add InitialCreate --project NewsAggregator.DAL --startup-project NewsAggregator.API
 

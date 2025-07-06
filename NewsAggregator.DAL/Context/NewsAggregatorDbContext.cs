@@ -15,6 +15,7 @@ namespace NewsAggregator.DAL.Context
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<ArticleFeedback> ArticleFeedbacks { get; set; }
         public DbSet<CategoryKeyword> CategoryKeywords { get; set; }
+        public DbSet<HiddenKeyword> HiddenKeywords { get; set; }
 
         public NewsAggregatorDbContext(DbContextOptions<NewsAggregatorDbContext> options)
             : base(options) { }
@@ -130,6 +131,7 @@ namespace NewsAggregator.DAL.Context
                 entity.Property(af => af.IsLike).IsRequired();
                 entity.Property(af => af.CreatedAt).IsRequired();
             });
+
             modelBuilder.Entity<CategoryKeyword>(entity =>
             {
                 entity.HasKey(ck => ck.Id);
@@ -138,6 +140,18 @@ namespace NewsAggregator.DAL.Context
                       .WithMany(c => c.CategoryKeywords)
                       .HasForeignKey(ck => ck.CategoryId)
                       .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<HiddenKeyword>(entity =>
+            {
+                entity.HasKey(hk => hk.Id);
+                entity.Property(hk => hk.Keyword)
+                      .IsRequired()
+                      .HasMaxLength(100);
+                entity.HasIndex(hk => hk.Keyword)
+                      .IsUnique();
+                entity.Property(hk => hk.IsDeleted)
+                      .IsRequired();
             });
         }
     }

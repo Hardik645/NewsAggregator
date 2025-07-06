@@ -9,15 +9,14 @@ namespace NewsAggregator.API.Services
         Task<List<Category>> GetAllCategoryAsync();
         Task<CategoryResponse> CreateCategoryAsync(string name);
         Task<CategoryResponse> GetCategoryWithKeywordsAsync(int categoryId);
-        Task AddKeywordsAsync(int categoryId, CreateKeywordRequest request);
         Task DeleteCategoryAsync(int categoryId);
-        Task DeleteKeywordAsync(int keywordId);
+        Task SetCategoryVisibility(int categoryId, bool isHidden);
     }
 
-    public class CategoryService(ICategoryRepository repository) : ICategoryService
+    public class CategoryService(ICategoryRepository categoryRepository, IKeywordRepository keywordRepository) : ICategoryService
     {
         public async Task<List<Category>> GetAllCategoryAsync()
-            => await repository.GetAllAsync();
+            => await categoryRepository.GetAllAsync();
         public async Task<CategoryResponse> CreateCategoryAsync(string name)
         {
             var category = new Category
@@ -26,7 +25,7 @@ namespace NewsAggregator.API.Services
                 IsDeleted = false
             };
 
-            var saved = await repository.AddCategoryAsync(category);
+            var saved = await categoryRepository.AddCategoryAsync(category);
 
             return new CategoryResponse
             {
@@ -36,13 +35,12 @@ namespace NewsAggregator.API.Services
                 Keywords = []
             };
         }
-
         public async Task<CategoryResponse> GetCategoryWithKeywordsAsync(int categoryId)
         {
-            var category = await repository.GetByIdAsync(categoryId)
+            var category = await categoryRepository.GetByIdAsync(categoryId)
                 ?? throw new KeyNotFoundException($"Category with ID {categoryId} not found.");
 
-            var keywords = await repository.GetKeywordsByCategoryIdAsync(categoryId)
+            var keywords = await keywordRepository.GetKeywordsByCategoryIdAsync(categoryId)
                 ?? throw new KeyNotFoundException($"No keywords found for category ID {categoryId}.");
 
             return new CategoryResponse
@@ -53,31 +51,15 @@ namespace NewsAggregator.API.Services
                 Keywords = keywords.Select(k => k.Keyword).ToList()
             };
         }
-
-        public async Task AddKeywordsAsync(int categoryId, CreateKeywordRequest request)
-        {
-            var category = await repository.GetByIdAsync(categoryId)
-                ?? throw new KeyNotFoundException($"Category with ID {categoryId} not found.");
-
-            var keywords = request.CommaSeparatedKeywords
-                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-                .Where(k => !string.IsNullOrWhiteSpace(k));
-
-            await repository.AddKeywordsAsync(categoryId, keywords);
-        }
-
         public async Task DeleteCategoryAsync(int categoryId)
         {
-            var result = await repository.DeleteCategoryAsync(categoryId);
+            var result = await categoryRepository.DeleteCategoryAsync(categoryId);
             if (!result)
                 throw new KeyNotFoundException($"Category with ID {categoryId} not found.");
         }
-
-        public async Task DeleteKeywordAsync(int keywordId)
+        public async Task SetCategoryVisibility(int categoryId, bool isHidden)
         {
-            var result = await repository.DeleteKeywordAsync(keywordId);
-            if (!result)
-                throw new KeyNotFoundException($"Keyword with ID {keywordId} not found.");
+            await categoryRepository.SetCategoryVisibilityAsync(categoryId, isHidden);
         }
     }
 }

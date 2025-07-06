@@ -56,7 +56,7 @@ internal class Program
         var jwtSecret = builder.Configuration["Jwt:Secret"];
         var jwtLifespan = int.Parse(builder.Configuration["Jwt:LifespanMinutes"] ?? "60");
 
-        builder.Services.AddSingleton(new JwtTokenService(jwtSecret, jwtLifespan));
+        builder.Services.AddSingleton(new JwtTokenService(jwtSecret!, jwtLifespan));
         builder.Services.AddDbContext<NewsAggregatorDbContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -67,12 +67,14 @@ internal class Program
         builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
         builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
         builder.Services.AddScoped<ISourceRepository, SourceRepository>();
+        builder.Services.AddScoped<IKeywordRepository, KeywordRepository>();
 
         builder.Services.AddScoped<INewsService, NewsService>();
         builder.Services.AddScoped<IArticleService, ArticleService>();
         builder.Services.AddScoped<INotificationService, NotificationService>();
         builder.Services.AddScoped<ISourceService, SourceService>();
         builder.Services.AddScoped<ICategoryService, CategoryService>();
+        builder.Services.AddScoped<IKeywordService, KeywordService>();
 
         builder.Services.AddHttpClient<INewsApiClient>();
         

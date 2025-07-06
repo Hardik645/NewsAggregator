@@ -18,6 +18,7 @@ namespace NewsAggregator.API.Services.Background
                 var articleRepository = scope.ServiceProvider.GetRequiredService<IArticleRepository>();
                 var sourceRepository = scope.ServiceProvider.GetRequiredService<ISourceRepository>();
                 var notificationRepository = scope.ServiceProvider.GetRequiredService<INotificationRepository>();
+                var keywordService = scope.ServiceProvider.GetRequiredService<IKeywordService>();
                 while (!stoppingToken.IsCancellationRequested)
                 {
                     try
@@ -32,6 +33,7 @@ namespace NewsAggregator.API.Services.Background
                                 await articleRepository.SaveArticlesAsync(articles);
                                 await sourceRepository.UpdateActiveStatusAsync(source, true);
                                 await articleRepository.CategorizeUnknownArticlesByKeywordsAsync();
+                                await keywordService.HideArticlesWithHiddenKeywordsAsync();
                                 await notificationRepository.AddCategoryAndKeywordNotificationsForArticlesAsync(articles);
                                 logger.LogInformation("Fetched and stored articles for source: {Name}", source.Name);
                             }
