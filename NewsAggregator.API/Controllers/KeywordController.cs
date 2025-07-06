@@ -73,7 +73,7 @@ namespace NewsAggregator.API.Controllers
 
         [HttpDelete("hidden")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> RemoveHiddenKeyword([FromBody] string keyword)
+        public async Task<IActionResult> RemoveHiddenKeyword([FromQuery] string keyword)
         {
             try
             {

@@ -72,7 +72,7 @@ namespace NewsAggregator.DAL.Repository
             var startDateTime = start.ToDateTime(TimeOnly.MinValue);
             var endDateTime = end.ToDateTime(TimeOnly.MaxValue);
             return await context.Articles
-                .Where(a => a.PublishedAt >= startDateTime && a.PublishedAt <= endDateTime && !a.IsHidden)
+                .Where(a => a.PublishedAt >= startDateTime && a.PublishedAt <= endDateTime && !a.IsHidden && !a.Category.IsHidden)
                 .ToListAsync();
         }
 
@@ -80,7 +80,7 @@ namespace NewsAggregator.DAL.Repository
         {
             return await context.Articles
                 .Include(a => a.Category)
-                .Where(a => a.Category.Name == category && a.PublishedAt >= date.Date && a.PublishedAt < date.Date.AddDays(1) && !a.IsHidden)
+                .Where(a => a.Category.Name == category && a.PublishedAt >= date.Date && a.PublishedAt < date.Date.AddDays(1) && !a.IsHidden && !a.Category.IsHidden)
                 .Select(a => new Article
                 {
                     Id = a.Id,
@@ -111,7 +111,8 @@ namespace NewsAggregator.DAL.Repository
                     a.Category.Name == category &&
                     a.PublishedAt >= startDateTime &&
                     a.PublishedAt <= endDateTime &&
-                    !a.IsHidden)
+                    !a.IsHidden && 
+                    !a.Category.IsHidden)
                 .Select(a => new Article
                 {
                     Id = a.Id,
@@ -166,7 +167,7 @@ namespace NewsAggregator.DAL.Repository
                 };
             }
 
-            return await articlesQuery.Where(a => !a.IsHidden).ToListAsync();
+            return await articlesQuery.Where(a => !a.IsHidden && !a.Category.IsHidden).ToListAsync();
         }
 
         public async Task<bool> SaveArticleForUserAsync(int articleId, Guid userId)
@@ -204,7 +205,7 @@ namespace NewsAggregator.DAL.Repository
         {
             return await context.SavedArticles
                 .Include(sa => sa.Article)
-                .Where(sa => sa.UserId == userId && !sa.Article.IsHidden)
+                .Where(sa => sa.UserId == userId && !sa.Article.IsHidden && !sa.Article.Category.IsHidden)
                 .Select(sa => sa.Article)
                 .AsNoTracking()
                 .ToListAsync();
@@ -212,7 +213,7 @@ namespace NewsAggregator.DAL.Repository
 
         public async Task<bool> SetArticleFeedbackAsync(int articleId, Guid userId, bool? isLike, bool? isReported)
         {
-            var article = await context.Articles.FirstOrDefaultAsync(a => a.Id == articleId && !a.IsHidden);
+            var article = await context.Articles.FirstOrDefaultAsync(a => a.Id == articleId && !a.IsHidden && !a.Category.IsHidden);
             if (article == null) return false;
 
             var feedback = await context.ArticleFeedbacks
@@ -278,7 +279,7 @@ namespace NewsAggregator.DAL.Repository
         public async Task<Article?> GetArticleByIdAsync(int articleId)
         {
             var result = await context.Articles
-                .Where(a => a.Id == articleId && !a.IsHidden)
+                .Where(a => a.Id == articleId && !a.IsHidden && !a.Category.IsHidden)
                 .Select(a => new
                 {
                     a.Id,
@@ -360,7 +361,7 @@ namespace NewsAggregator.DAL.Repository
         public async Task<List<Article>> GetAllReportedNotHiddenArticlesAsync()
         {
             return await context.Articles
-                .Where(a => a.ReportCount > 0 && !a.IsHidden)
+                .Where(a => a.ReportCount > 0 && !a.IsHidden && !a.Category.IsHidden)
                 .ToListAsync();
         }
         public async Task HideArticlesAsync(int id)

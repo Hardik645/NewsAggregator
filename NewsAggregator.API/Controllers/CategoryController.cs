@@ -88,7 +88,7 @@ namespace NewsAggregator.API.Controllers
             try
             {
                 await service.SetCategoryVisibility(id, isHidden);
-                return NoContent();
+                return Ok();
             }
             catch (KeyNotFoundException ex)
             {

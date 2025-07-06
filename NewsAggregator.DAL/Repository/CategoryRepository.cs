@@ -23,12 +23,12 @@ namespace NewsAggregator.DAL.Repository
                 .AsNoTracking()
                 .Include(c => c.CategoryKeywords)
                 .Where(c => !c.IsDeleted)
-                .Where(c => !c.IsHidden)
                 .Select(c => new Category
                 {
                     Id = c.Id,
                     Name = c.Name,
                     IsDeleted = c.IsDeleted,
+                    IsHidden = c.IsHidden,
                     CategoryKeywords = c.CategoryKeywords
                         .Where(ck => !ck.IsDeleted)
                         .Select(ck => new CategoryKeyword
