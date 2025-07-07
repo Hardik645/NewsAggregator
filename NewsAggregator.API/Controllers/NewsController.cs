@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NewsAggregator.API.Services;
+using NewsAggregator.API.Utils;
 
 namespace NewsAggregator.API.Controllers
 {
@@ -21,6 +22,7 @@ namespace NewsAggregator.API.Controllers
             }
             catch (Exception ex)
             {
+                ExceptionLogger.LogException(ex);
                 return StatusCode(500, ex.Message);
             }
         }
@@ -40,6 +42,7 @@ namespace NewsAggregator.API.Controllers
             }
             catch (Exception ex)
             {
+                ExceptionLogger.LogException(ex);
                 return StatusCode(500, ex.Message);
             }
         }
@@ -54,6 +57,7 @@ namespace NewsAggregator.API.Controllers
             }
             catch (Exception ex)
             {
+                ExceptionLogger.LogException(ex);
                 return StatusCode(500, ex.Message);
             }
         }
@@ -74,6 +78,7 @@ namespace NewsAggregator.API.Controllers
             }
             catch (Exception ex)
             {
+                ExceptionLogger.LogException(ex);
                 return StatusCode(500, ex.Message);
             }
         }

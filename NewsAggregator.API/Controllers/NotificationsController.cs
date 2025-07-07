@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NewsAggregator.API.Models;
 using NewsAggregator.API.Services;
+using NewsAggregator.API.Utils;
 
 namespace NewsAggregator.API.Controllers
 {
@@ -21,6 +22,7 @@ namespace NewsAggregator.API.Controllers
             }
             catch (Exception ex)
             {
+                ExceptionLogger.LogException(ex);
                 return StatusCode(500, $"Failed to get notifications: {ex.Message}");
             }
         }
@@ -36,6 +38,7 @@ namespace NewsAggregator.API.Controllers
             }
             catch (Exception ex)
             {
+                ExceptionLogger.LogException(ex);
                 return StatusCode(500, $"Failed to get notification config: {ex.Message}");
             }
         }
@@ -52,6 +55,7 @@ namespace NewsAggregator.API.Controllers
             }
             catch (Exception ex)
             {
+                ExceptionLogger.LogException(ex);
                 return StatusCode(500, $"Failed to update category notification: {ex.Message}");
             }
         }
@@ -67,6 +71,7 @@ namespace NewsAggregator.API.Controllers
             }
             catch (Exception ex)
             {
+                ExceptionLogger.LogException(ex);
                 return StatusCode(500, $"Failed to update keyword notifications: {ex.Message}");
             }
         }

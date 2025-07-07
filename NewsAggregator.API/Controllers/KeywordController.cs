@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using NewsAggregator.API.Models;
 using NewsAggregator.API.Services;
+using NewsAggregator.API.Utils;
 
 namespace NewsAggregator.API.Controllers
 {
@@ -28,6 +29,7 @@ namespace NewsAggregator.API.Controllers
             }
             catch (Exception ex)
             {
+                ExceptionLogger.LogException(ex);
                 return StatusCode(500, new { Message = "An error occurred while adding keywords.", Details = ex.Message });
             }
         }
@@ -47,6 +49,7 @@ namespace NewsAggregator.API.Controllers
             }
             catch (Exception ex)
             {
+                ExceptionLogger.LogException(ex);
                 return StatusCode(500, new { Message = "An error occurred while deleting the keyword.", Details = ex.Message });
             }
         }
@@ -67,6 +70,7 @@ namespace NewsAggregator.API.Controllers
             }
             catch (Exception ex)
             {
+                ExceptionLogger.LogException(ex);
                 return StatusCode(500, new { Message = "An error occurred while hiding the keyword.", Details = ex.Message });
             }
         }
@@ -91,6 +95,7 @@ namespace NewsAggregator.API.Controllers
             }
             catch (Exception ex)
             {
+                ExceptionLogger.LogException(ex);
                 return StatusCode(500, new { Message = "An error occurred while unhiding the keyword.", Details = ex.Message });
             }
         }
@@ -106,6 +111,7 @@ namespace NewsAggregator.API.Controllers
             }
             catch (Exception ex)
             {
+                ExceptionLogger.LogException(ex);
                 return StatusCode(500, new { Message = "An error occurred while retrieving hidden keywords.", Details = ex.Message });
             }
         }

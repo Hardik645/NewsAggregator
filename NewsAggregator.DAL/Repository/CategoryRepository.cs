@@ -48,7 +48,7 @@ namespace NewsAggregator.DAL.Repository
         }
         public async Task<Category?> GetByIdAsync(int id)
         {
-            return await _dbContext.Categories.FirstOrDefaultAsync(c => c.Id == id && !c.IsDeleted && !c.IsHidden);
+            return await _dbContext.Categories.FirstOrDefaultAsync(c => c.Id == id && !c.IsDeleted);
         }
         public async Task<Category> AddCategoryAsync(Category category)
         {

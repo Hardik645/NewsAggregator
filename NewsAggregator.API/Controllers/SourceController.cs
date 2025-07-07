@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using NewsAggregator.API.Models;
 using NewsAggregator.API.Services;
+using NewsAggregator.API.Utils;
 
 namespace NewsAggregator.API.Controllers
 {
@@ -13,37 +14,76 @@ namespace NewsAggregator.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var result = await service.GetAllAsync();
-            return Ok(result);
+            try
+            {
+                var result = await service.GetAllAsync();
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                ExceptionLogger.LogException(ex);
+                return StatusCode(500, $"An error occurred while retrieving sources: {ex.Message}");
+            }
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var result = await service.GetByIdAsync(id);
-            return result != null ? Ok(result) : Ok("Not Found");
+            try
+            {
+                var result = await service.GetByIdAsync(id);
+                return result != null ? Ok(result) : Ok("Not Found");
+            }
+            catch (Exception ex)
+            {
+                ExceptionLogger.LogException(ex);
+                return StatusCode(500, $"An error occurred while retrieving the source: {ex.Message}");
+            }
         }
 
         [HttpPost]
         public async Task<IActionResult> Add([FromBody] SourceRequest dto)
         {
-            var result = await service.AddAsync(dto);
-            return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
+            try
+            {
+                var result = await service.AddAsync(dto);
+                return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
+            }
+            catch (Exception ex)
+            {
+                ExceptionLogger.LogException(ex);
+                return StatusCode(500, $"An error occurred while adding the source: {ex.Message}");
+            }
         }
 
         [HttpPatch("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] SourceUpdateRequest dto)
         {
-            var result = await service.UpdateAsync(id, dto);
-            return result != null ? Ok(result) : NotFound();
+            try
+            {
+                var result = await service.UpdateAsync(id, dto);
+                return result != null ? Ok(result) : NotFound();
+            }
+            catch (Exception ex)
+            {
+                ExceptionLogger.LogException(ex);
+                return StatusCode(500, $"An error occurred while updating the source: {ex.Message}");
+            }
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var success = await service.DeleteAsync(id);
-            return success ? NoContent() : NotFound();
+            try
+            {
+                var success = await service.DeleteAsync(id);
+                return success ? NoContent() : NotFound();
+            }
+            catch (Exception ex)
+            {
+                ExceptionLogger.LogException(ex);
+                return StatusCode(500, $"An error occurred while deleting the source: {ex.Message}");
+            }
         }
     }
-    
 }

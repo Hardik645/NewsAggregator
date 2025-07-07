@@ -1,7 +1,6 @@
 using NewsAggregator.API.Models;
 using NewsAggregator.DAL.Entities;
 using NewsAggregator.DAL.Repository;
-using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
 
 namespace NewsAggregator.API.Services
 {
@@ -22,7 +21,7 @@ namespace NewsAggregator.API.Services
     {
         public async Task AddKeywordsAsync(int categoryId, CreateKeywordRequest request)
         {
-            var category = await categoryRepository.GetByIdAsync(categoryId)
+            _ = await categoryRepository.GetByIdAsync(categoryId)
                 ?? throw new KeyNotFoundException($"Category with ID {categoryId} not found.");
 
             var keywords = request.CommaSeparatedKeywords

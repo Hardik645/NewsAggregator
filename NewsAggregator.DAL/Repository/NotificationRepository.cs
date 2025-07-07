@@ -126,6 +126,9 @@ namespace NewsAggregator.DAL.Repository
         {
             foreach (var article in articles)
             {
+                if (article.Id == 0)
+                    continue;
+
                 var categoryUserIds = await _dbContext.NotificationPreferences
                     .Where(np => np.CategoryId == article.CategoryId && np.Enabled)
                     .Select(np => np.UserId)

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using NewsAggregator.API.Models;
 using NewsAggregator.API.Services;
+using NewsAggregator.API.Utils;
 
 namespace NewsAggregator.API.Controllers
 {
@@ -20,6 +20,7 @@ namespace NewsAggregator.API.Controllers
             }
             catch (Exception ex)
             {
+                ExceptionLogger.LogException(ex);
                 return StatusCode(500, new { Message = "An error occurred while retrieving categories.", Details = ex.Message });
             }
         }
@@ -39,6 +40,7 @@ namespace NewsAggregator.API.Controllers
             }
             catch (Exception ex)
             {
+                ExceptionLogger.LogException(ex);
                 return StatusCode(500, new { Message = "An error occurred while creating the category.", Details = ex.Message });
             }
         }
@@ -54,10 +56,11 @@ namespace NewsAggregator.API.Controllers
             }
             catch (KeyNotFoundException ex)
             {
-                return NotFound(new { Message = ex.Message });
+                return NotFound(new { ex.Message });
             }
             catch (Exception ex)
             {
+                ExceptionLogger.LogException(ex);
                 return StatusCode(500, new { Message = "An error occurred while retrieving the category.", Details = ex.Message });
             }
         }
@@ -77,6 +80,7 @@ namespace NewsAggregator.API.Controllers
             }
             catch (Exception ex)
             {
+                ExceptionLogger.LogException(ex);
                 return StatusCode(500, new { Message = "An error occurred while deleting the category.", Details = ex.Message });
             }
         }
@@ -96,6 +100,7 @@ namespace NewsAggregator.API.Controllers
             }
             catch (Exception ex)
             {
+                ExceptionLogger.LogException(ex);
                 return StatusCode(500, new { Message = "An error occurred while updating category visibility.", Details = ex.Message });
             }
         }

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NewsAggregator.API.Services;
+using NewsAggregator.API.Utils;
 using NewsAggregator.DAL.Entities;
 
 namespace NewsAggregator.API.Controllers
@@ -25,6 +26,7 @@ namespace NewsAggregator.API.Controllers
             }
             catch (Exception ex)
             {
+                ExceptionLogger.LogException(ex);
                 return StatusCode(500, ex.Message);
             }
         }
@@ -40,6 +42,7 @@ namespace NewsAggregator.API.Controllers
             }
             catch (Exception ex)
             {
+                ExceptionLogger.LogException(ex);
                 return StatusCode(500, ex.Message);
             }
         }
@@ -58,6 +61,7 @@ namespace NewsAggregator.API.Controllers
             }
             catch (Exception ex)
             {
+                ExceptionLogger.LogException(ex);
                 return StatusCode(500, ex.Message);
             }
         }
@@ -84,6 +88,7 @@ namespace NewsAggregator.API.Controllers
             }
             catch (Exception ex)
             {
+                ExceptionLogger.LogException(ex);
                 return StatusCode(500, ex.Message);
             }
         }
@@ -102,6 +107,7 @@ namespace NewsAggregator.API.Controllers
             }
             catch (Exception ex)
             {
+                ExceptionLogger.LogException(ex);
                 return StatusCode(500, ex.Message);
             }
         }
@@ -118,6 +124,7 @@ namespace NewsAggregator.API.Controllers
             }
             catch (Exception ex)
             {
+                ExceptionLogger.LogException(ex);
                 return StatusCode(500, new { Message = "An error occurred while hiding articles.", Details = ex.Message });
             }
         }
@@ -133,6 +140,7 @@ namespace NewsAggregator.API.Controllers
             }
             catch (Exception ex)
             {
+                ExceptionLogger.LogException(ex);
                 return StatusCode(500, new { Message = "An error occurred while retrieving articles.", Details = ex.Message });
             }
         }
